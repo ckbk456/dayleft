@@ -57,7 +57,8 @@ applying a change for a new day replaces an older one that may still cover a run
 `DialGeometry` places midnight at the top running clockwise (15° per hour), converts points and
 angles to 5-minute-snapped times, reports the arc and the nearest handle, and moves a handle
 while keeping 15 minutes from the other one. A handle approaching the other stops on the side
-it came from rather than jumping across.
+it came from rather than jumping across. `App/Components/DayDial.swift` draws the dial and
+routes drags, arrow keys, VoiceOver adjustments, and typed times through these functions.
 
 ## Not yet implemented
 

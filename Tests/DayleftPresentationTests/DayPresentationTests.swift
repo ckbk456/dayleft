@@ -72,6 +72,14 @@ struct DayPresentationTests {
     #expect(formatter.time(try! TimeOfDay(hour: 22, minute: 5)).hasPrefix("10:05"))
   }
 
+  @Test func dialHourLabelsFollowTheLocale() {
+    let british = DayleftFormatter(calendar: calendar, locale: Locale(identifier: "en_GB"))
+    #expect(british.hourLabel(6) == "06")
+    let american = DayleftFormatter(calendar: calendar, locale: Locale(identifier: "en_US"))
+    #expect(american.hourLabel(18).hasPrefix("6"))
+    #expect(american.hourLabel(18).hasSuffix("PM"))
+  }
+
   @Test func settingsFallBackToDefaults() throws {
     #expect(SettingsDocument.decode(nil) == SettingsDocument())
     #expect(SettingsDocument.decode(Data("not json".utf8)).schedule == .standard)
