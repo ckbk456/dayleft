@@ -9,6 +9,15 @@ Use System Settings → General → Date & Time to change the clock, time zone, 
 - [ ] The menu bar shows **both** the hourglass and the text. If only the icon appears, record
       it: the label interpolates the image into a single `Text` to avoid that.
 
+## Day dial — pending
+
+- [ ] Xcode previews (`App/Components/DayDial.swift`): day shift, overnight, minimum length.
+- [ ] Dragging snaps to 5 minutes, moves the nearest handle, and stops 15 minutes from the other
+      handle without jumping across it; the arc crosses midnight correctly.
+- [ ] Focused handles move with arrow keys (5 minutes) and Shift-arrows (1 hour).
+- [ ] VoiceOver reads "Start"/"Cutoff" with the time and adjusts them; the time fields stay in sync.
+- [ ] Hour marks follow 12/24-hour settings; light and dark appearances are readable.
+
 ## MVP acceptance criteria — pending
 
 1. [ ] First launch uses Monday–Friday 09:00–18:00 and shows the correct current state.

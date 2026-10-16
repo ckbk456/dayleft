@@ -100,6 +100,13 @@ public struct DayleftFormatter: Sendable {
     return self.time(reference)
   }
 
+  /// Hour-only label for dial marks, e.g. `6 AM` or `06`.
+  public func hourLabel(_ hour: Int) -> String {
+    let reference = calendar.date(
+      from: DateComponents(year: 2001, month: 1, day: 1, hour: hour, minute: 0))!
+    return reference.formatted(style.hour())
+  }
+
   /// `9:00 AM`, `tomorrow 9:00 AM`, or `Monday 9:00 AM` relative to `now`.
   public func relativeTime(_ date: Date, now: Date) -> String {
     let today = LocalDay(containing: now, calendar: calendar)
