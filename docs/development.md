@@ -49,10 +49,12 @@ exited; confirm that before removing a stale lock. Shell-owned commands are kept
 
 ## Layout
 
-`App/` is the native sample UI. `Sources/DayleftCore` is the dependency-free timing model.
+`App/` is the native UI and its models (timer refresh, settings persistence, login item).
+`Sources/DayleftCore` is the dependency-free timing model; `Sources/DayleftPresentation` turns
+day states into menu bar, panel, and VoiceOver text and owns the stored settings format.
 `Tests/DayleftCoreTests` owns deterministic behavior checks. The Xcode app links that same
 local package. There is no remote package resolution, database, migration, service, listener,
-provider configuration, signing secret, or environment file in this scaffold.
+provider configuration, signing secret, or environment file. Settings live in local defaults.
 
 ## Validation and release boundaries
 
@@ -63,4 +65,4 @@ and an unsigned Debug app build. It does not run a native UI suite or sign/notar
 
 Record local and actual hosted CI results separately in the delivery handoff. Human verification
 is consolidated in [the timer guide](../testing/MANUAL%20TO-DO/timer.md). A successful compile,
-an app screenshot, or fixed sample UI is not proof that live-timer MVP behavior works.
+or an app screenshot is not proof that live-timer MVP behavior works.

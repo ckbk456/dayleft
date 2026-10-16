@@ -58,5 +58,10 @@ it came from rather than jumping across.
 
 ## Not yet implemented
 
-The app still shows a fixed sample day; live wiring is next. Manual checks live in
+## App wiring
+
+`App/Model/TimerModel.swift` resolves with `Calendar.autoupdatingCurrent`, discards an expired
+today-only change, and sleeps until `nextRefresh` (plus 50 ms so it lands after the boundary).
+It also refreshes on wake, clock, time-zone, calendar-day, and locale changes and after settings
+edits. `DayleftPresentation` owns all displayed text. Manual checks live in
 [the timer guide](../../testing/MANUAL%20TO-DO/timer.md).

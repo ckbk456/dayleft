@@ -2,9 +2,9 @@
 
 A small native macOS menu bar app that reminds you how much of your chosen workday is left.
 
-**Status: development scaffold, not a completed timer.** The app currently opens a fixed
-09:00–18:00 sample day at 14:36, displaying `3h 24m`. Quit works; live scheduling,
-editable hours, persistence, today-only adjustments, and login launch are upcoming MVP work.
+**Status: pre-release.** The menu bar shows a live countdown for the default Monday–Friday
+09:00–18:00 workday (or saved hours) and refreshes on wake, clock, and time-zone changes.
+Editing hours, today-only changes, and login launch controls are upcoming MVP work.
 
 ![Approved menu bar direction](docs/design/approved-menu-bar.png)
 
@@ -36,7 +36,7 @@ notarized release. `Dayleft.xcodeproj` is generated and ignored; edit `project.y
 ## Project
 
 - [Product specification](SPEC.md) and [scope](SCOPE.md): intended behavior and MVP boundaries.
-- [Roadmap](ROADMAP.md): scaffold, standalone MVP, then optional connections.
+- [Roadmap](ROADMAP.md): foundation, standalone MVP, then optional connections.
 - [Foundation plan](docs/plans/foundation.md): agreed decisions and PR sequence to the MVP.
 - [Development guide and command registry](docs/development.md).
 - [Documentation index](docs/README.md) and [current timing contract](docs/logic/timing.md).

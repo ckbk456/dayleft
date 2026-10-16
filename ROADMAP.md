@@ -1,16 +1,14 @@
 # Roadmap
 
-## Scaffold — implemented
+## Foundation — implemented
 
-Native preview, timing package, focused tests, reproducible setup and generation, CI definition,
-and project contracts. Local/CI validation results are evidence, not completion of manual QA.
+Pinned toolchain, schedule rules and timing core, presentation text, persistence, live refresh,
+and the live menu bar panel. Local/CI validation results are evidence, not completion of manual QA.
 
 ## Standalone MVP — next
 
-1. Define daily schedule, timezone, rollover, and override rules; resolve the open calendar cases.
-2. Implement preferences and live timing, with before/during/after states and lifecycle refresh.
-3. Add work-hour editing, today-only adjustments, Settings, and opt-in login launch.
-4. Complete the [timer manual guide](testing/MANUAL%20TO-DO/timer.md), accessibility checks,
+1. Add the 24-hour dial, Settings, "Adjust today…", and opt-in login launch.
+2. Complete the [timer manual guide](testing/MANUAL%20TO-DO/timer.md), accessibility checks,
    and a distribution decision before calling the app ready for users.
 
 ## Optional connections — after MVP

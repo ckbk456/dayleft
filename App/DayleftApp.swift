@@ -2,14 +2,16 @@ import SwiftUI
 
 @main
 struct DayleftApp: App {
+  @State private var model = TimerModel(settings: SettingsStore())
+
   var body: some Scene {
     MenuBarExtra {
-      TimerPreviewView()
-        .preferredColorScheme(.dark)
+      PanelView(model: model)
     } label: {
-      Label("3h 24m", systemImage: "hourglass")
+      // Interpolating the image into one Text keeps both icon and time in the status item.
+      Text("\(Image(systemName: "hourglass")) \(model.presentation.menuBarText)")
         .monospacedDigit()
-        .accessibilityLabel("Dayleft preview, 3 hours 24 minutes remaining")
+        .accessibilityLabel(model.presentation.accessibilityLabel)
     }
     .menuBarExtraStyle(.window)
   }

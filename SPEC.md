@@ -10,8 +10,8 @@ its own, without accounts, tracking services, or a connection to another applica
 
 The selected direction is the compact dark countdown with a large remaining-time label and a
 horizontal workday-progress bar. See [the approved visual](docs/design/approved-menu-bar.png).
-The image is visual direction; its decorative slogan and unimplemented controls are not product
-requirements. The scaffold uses this direction in a fixed sample-day preview.
+The image is visual direction; its decorative slogan is not a product requirement. Work hours are
+edited with a 24-hour dial in Settings and in "Adjust today…"; the panel keeps the linear bar.
 
 The menu bar shows a small hourglass and hours/minutes. Clicking opens a panel with remaining
 time, finish time, a clearly identified elapsed-workday bar, and work-hour controls. Keep the
@@ -19,15 +19,20 @@ primary countdown prominent when later connected information is enabled.
 
 ## Standalone MVP: intended behavior
 
-- Let the user choose recurring start and finish times for a workday. Initial delivery may use
-  one same-day daily window; workweek and overnight scheduling require a separate design decision.
-- Let the user change today's hours without changing the recurring defaults.
-- Before work, identify the next start; during work, show the remaining work-window time;
-  at the cutoff, show that the workday is finished. Do not immediately replace this with a
-  nearly full-day countdown to tomorrow. Define the day-rollover behavior during scheduling work.
+- Let the user choose recurring start and cutoff times on a 24-hour dial (5-minute steps, at
+  least 15 minutes) and which weekdays are workdays. Defaults: Monday–Friday, 09:00–18:00.
+  A cutoff at or before the start ends the next day; a shift belongs to the day it starts.
+- Let the user change today's hours, or take today off, without changing the recurring
+  defaults. The change applies to the shift starting today and ends when that shift ends.
+- Before work, show the start time; during work, the remaining time; after the cutoff, `Done`
+  until local midnight or the next start, whichever is first; on a day off, `Off`. Do not
+  replace `Done` with a nearly full-day countdown. Working past the cutoff is not shown.
+- Skipped local times move to the next valid time and repeated times use their first
+  occurrence; countdowns use real elapsed time.
 - Recompute from the current clock. Refresh after sleep/wake, clock changes, timezone changes,
   settings edits, and day rollover. Resolve local dates with a calendar, not fixed 86,400-second days.
-- Use hours/minutes by default. The current core rounds partial minutes up.
+- Use hours/minutes, rounding partial minutes up. Follow the system 12/24-hour setting and
+  light/dark appearance.
 - Persist user preferences locally. Include Settings, Quit, and opt-in launch at login.
 - Work offline with no account or external service dependency.
 
@@ -49,8 +54,8 @@ have to dismiss setup prompts for unrelated connections.
 
 ## Decisions still open
 
-Workweek/overnight scheduling, break accounting, ambiguous/nonexistent local clock times,
-final app name and icon, theme/accessibility polish, distribution/signing identity,
+Different hours per weekday, break accounting, working-past-cutoff display, final app name and
+icon, theme/accessibility polish, distribution/signing identity,
 and integration transport/provider selection remain open. Resolve each at its owning milestone.
 
 ## Current implementation
