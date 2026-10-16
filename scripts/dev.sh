@@ -116,6 +116,17 @@ build_app() {
     CODE_SIGNING_ALLOWED=NO build -quiet
 }
 
+# Release build signed ad hoc for running on this Mac only; not a distributable release.
+build_local_app() {
+  generate
+  xcodebuild -project Dayleft.xcodeproj -scheme Dayleft \
+    -configuration Release -destination 'generic/platform=macOS' \
+    -derivedDataPath .build/xcode-local -jobs 2 \
+    CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= build -quiet
+  codesign --verify --strict .build/xcode-local/Build/Products/Release/Dayleft.app
+  printf 'Built .build/xcode-local/Build/Products/Release/Dayleft.app\n'
+}
+
 lock_validation() {
   mkdir -p .build
   if ! mkdir "$DAYLEFT_LOCK" 2>/dev/null; then
@@ -149,6 +160,7 @@ case "${1:-}" in
   format) lock_validation; format ;;
   test) lock_validation; test_core ;;
   build) lock_validation; build_app ;;
+  app) lock_validation; build_local_app ;;
   check)
     lock_validation
     lint
@@ -161,5 +173,5 @@ case "${1:-}" in
     unlock_validation
     open Dayleft.xcodeproj
     ;;
-  *) printf 'Usage: make {setup|doctor|generate|lint|format|test|build|check|open}\n' >&2; exit 2 ;;
+  *) printf 'Usage: make {setup|doctor|generate|lint|format|test|build|check|app|open}\n' >&2; exit 2 ;;
 esac

@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct DayleftApp: App {
   @State private var model = TimerModel(settings: SettingsStore())
+  @State private var loginItem = LoginItem()
 
   var body: some Scene {
     MenuBarExtra {
@@ -14,5 +15,9 @@ struct DayleftApp: App {
         .accessibilityLabel(model.presentation.accessibilityLabel)
     }
     .menuBarExtraStyle(.window)
+
+    Settings {
+      SettingsView(model: model, loginItem: loginItem)
+    }
   }
 }

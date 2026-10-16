@@ -1,5 +1,5 @@
 .NOTPARALLEL:
-.PHONY: setup doctor generate lint format test build check open
+.PHONY: setup doctor generate lint format test build check app open
 
-setup doctor generate lint format test build check open:
+setup doctor generate lint format test build check app open:
 	@bash scripts/dev.sh $@

@@ -38,6 +38,7 @@ not guarantees. The command definitions are `Makefile` and `scripts/dev.sh` unle
 | Rewrite Swift formatting | `make format` | `.swift-format` | <30 s | Low | Mutating, explicitly intended formatting only |
 | Test core | `make test` | `Package.swift`, core tests | <3 min cold | Yes | Swift 6+, one shot, 2 jobs |
 | Build unsigned app | `make build` | `project.yml`, app, local package | <3 min cold | Yes | Full Xcode, macOS SDK, 2 jobs |
+| Local test app | `make app` | `project.yml`, app, local package | <3 min cold | Yes | Release, ad hoc signed for this Mac only; not a release |
 | Complete local/CI gate | `make check` | lint → test → build | <5 min cold | Yes, serial | Same prerequisites as above; deterministic per toolchain |
 | Open native project | `make open` | project generator, macOS `open` | <10 s | No | Human-owned GUI handoff |
 | Run native preview | Xcode: Dayleft scheme → My Mac → Run | generated scheme | <1 min | Build is intensive | Human-owned; local signing choice may be required |
