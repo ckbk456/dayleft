@@ -12,6 +12,12 @@ struct TimerPreviewView: View {
     return window.snapshot(at: start.addingTimeInterval(5 * 3_600 + 36 * 60))
   }()
 
+  /// Temporary formatting until the presentation layer lands.
+  private var remainingText: String {
+    let minutes = snapshot.remainingWholeMinutes
+    return minutes >= 60 ? "\(minutes / 60)h \(minutes % 60)m" : "\(minutes)m"
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: 20) {
       VStack(alignment: .leading, spacing: 8) {
@@ -19,7 +25,7 @@ struct TimerPreviewView: View {
           .font(.caption.weight(.semibold))
           .tracking(1)
           .foregroundStyle(.secondary)
-        Text(snapshot.remainingLabel)
+        Text(remainingText)
           .font(.system(size: 42, weight: .semibold, design: .rounded))
           .monospacedDigit()
         Text("left until 18:00")

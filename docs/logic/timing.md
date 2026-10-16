@@ -1,27 +1,62 @@
 # Implemented timing contract
 
-Owner: `Sources/DayleftCore/WorkWindow.swift`; tests: `Tests/DayleftCoreTests/WorkWindowTests.swift`.
+Owners: `Sources/DayleftCore/` (`TimeOfDay.swift`, `Schedule.swift`, `ScheduleResolver.swift`,
+`WorkWindow.swift`, `DialGeometry.swift`); tests in `Tests/DayleftCoreTests/`.
 
-`WorkWindow` accepts finite, strictly ordered absolute `Date` bounds. It does not resolve a
-recurring schedule, store preferences, choose a timezone, or read the system clock. Callers
-supply the current instant to `snapshot(at:)` on every refresh. Real application clocks are
-expected to supply a finite instant.
+The core reads no system clock and stores nothing. Callers pass the current instant and a
+`Calendar` (whose time zone defines the local day) on every refresh.
 
-| Clock position | Phase | Remaining work budget | Elapsed fraction |
-|---|---|---|---|
-| Before start | upcoming | Full interval duration | 0 |
-| At start through before end | working | End minus now | (now minus start) / duration |
-| At or after end | finished | 0 | 1 |
+## Schedule values
 
-`remainingLabel` rounds up to whole minutes. This preserves `1m` during a final partial minute.
-The bar represents **elapsed** work-window time; do not label it remaining. The approved
-09:00–18:00 example at 14:36 has 3h 24m remaining and about 62.22% elapsed.
+- `TimeOfDay` is a minute of the local day (0–1439). `ShiftHours` holds a start and cutoff on
+  5-minute steps, at least 15 minutes apart; a cutoff at or before the start ends the next day,
+  so the longest shift is 23h 55m.
+- `Schedule` applies one `ShiftHours` to a non-empty set of weekdays. `Schedule.standard` is
+  Monday–Friday 09:00–18:00.
+- `DayOverride` changes only the shift that starts on its `LocalDay`: custom hours or a day off.
+- Decoding revalidates every value, so stored data cannot bypass these rules.
 
-Once dates are resolved, crossing midnight and daylight-saving changes work through absolute
-elapsed time. This is not proof that recurring-schedule resolution or lifecycle refresh exists.
-Those belong to the next milestone. Current tests cover invalid bounds, start/end boundaries,
-the approved example, skipped clock ticks, rounding, an overnight absolute interval, and a
-spring daylight-saving interval.
+## Resolving windows
 
-The SwiftUI app uses fixed sample instants and a fixed menu bar label. It is a scaffold preview,
-not a running countdown. UI inspection remains [human-owned](../../testing/MANUAL%20TO-DO/timer.md).
+A shift belongs to the day it starts. `ScheduleResolver.window(on:)` turns that day's hours into
+an absolute `WorkWindow`. A wall time inside a daylight-saving gap moves to the next valid time;
+a repeated time uses its first occurrence. A shift squeezed to nothing by a gap has no window
+that day. Countdown and elapsed fraction always use real elapsed seconds.
+
+## States
+
+`state(at:)` checks yesterday's and today's windows, then picks the first matching row:
+
+| State | Condition | Menu bar (presentation) |
+|---|---|---|
+| `working` | Inside a window; yesterday's overnight shift wins over today's overlapping change | Remaining time |
+| `finished` | A window ended earlier today | `Done` |
+| `beforeStart` | Today's own shift starts later today | Next start time |
+| `dayOff` | Otherwise: a day-off change, a non-workday, or no valid window today | `Off` |
+
+`finished` therefore lasts until local midnight or the next start, whichever is first. A shift
+ending exactly at midnight counts as ending the day before, so `Done` does not fill the next day.
+Every state except `working` carries the next window, searched up to 15 days ahead.
+
+`WorkWindow.Snapshot.remainingWholeMinutes` rounds up, so the final partial minute shows `1m`
+and the value agrees with the minute shown by the system clock. A non-finite clock reading is
+treated as before the start; values too large for `Int` clamp instead of trapping.
+
+## Refresh and expiry
+
+`nextRefresh(after:)` returns the earliest future instant among the next change in displayed
+whole minutes, the active cutoff, the next start, and the next local midnight. Apps also refresh
+on wake, clock and time-zone changes, and settings edits. `isExpired(_:at:)` reports that a
+custom-hours change ended with its shift, or a day off ended at the following midnight.
+
+## Dial geometry
+
+`DialGeometry` places midnight at the top running clockwise (15° per hour), converts points and
+angles to 5-minute-snapped times, reports the arc and the nearest handle, and moves a handle
+while keeping 15 minutes from the other one. A handle approaching the other stops on the side
+it came from rather than jumping across.
+
+## Not yet implemented
+
+The app still shows a fixed sample day; live wiring is next. Manual checks live in
+[the timer guide](../../testing/MANUAL%20TO-DO/timer.md).

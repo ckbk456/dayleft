@@ -25,7 +25,7 @@ rules; this plan records the agreed order and acceptance criteria.
 | State | Menu bar |
 |---|---|
 | Working | `3h 24m` (partial minutes round up) |
-| Finished | `Done` until local midnight or the next start, whichever is first |
+| Finished | `Done` until local midnight or the next start, whichever is first; a shift ending exactly at midnight ends the day before |
 | Before start | Next start time, e.g. `09:00` |
 | Day off | `Off` until local midnight, then the next start |
 

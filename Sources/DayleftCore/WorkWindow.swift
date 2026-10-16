@@ -19,12 +19,10 @@ public struct WorkWindow: Equatable, Sendable {
     /// Elapsed fraction of the work window, clamped to 0...1.
     public let elapsedFraction: Double
 
-    /// Minute precision, rounded up so an active final minute is never shown as zero.
-    public var remainingLabel: String {
-      let minutes = Int(ceil(remaining / 60))
-      let hours = minutes / 60
-      let remainder = minutes % 60
-      return hours > 0 ? "\(hours)h \(remainder)m" : "\(remainder)m"
+    /// Whole minutes rounded up, so an active final minute is never shown as zero.
+    public var remainingWholeMinutes: Int {
+      let minutes = (remaining / 60).rounded(.up)
+      return minutes >= Double(Int.max) ? Int.max : Int(minutes)
     }
   }
 
@@ -46,7 +44,8 @@ public struct WorkWindow: Equatable, Sendable {
   /// Recompute from the supplied clock; never decrement a stored countdown.
   public func snapshot(at now: Date) -> Snapshot {
     let duration = end.timeIntervalSince(start)
-    if now < start {
+    // A non-finite clock reading cannot be placed in the window; treat it as before the start.
+    if !now.timeIntervalSinceReferenceDate.isFinite || now < start {
       return Snapshot(phase: .upcoming, remaining: duration, elapsedFraction: 0)
     }
     if now >= end {
