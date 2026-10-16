@@ -13,9 +13,10 @@ belong after MVP. The timer remains complete and usable without connecting an ac
 
 ## Develop
 
-Requirements: macOS 13+, full Xcode 16.4 or newer selected with `xcode-select`, command line
-tools, Python 3, and `make`. XcodeGen 2.46.0 is downloaded into `.tools/` by `make setup`,
-with its release archive verified by SHA-256. There are no third-party app dependencies.
+Requirements: macOS 14+, full Xcode 26.6 or newer (selected with `xcode-select` or
+`DEVELOPER_DIR`), Python 3, Git, and `make`. `make setup` downloads XcodeGen 2.46.0 into
+`.tools/` with a SHA-256 check and builds swift-format 604.0.0 from a commit-verified tag
+(a few minutes, once). There are no third-party app dependencies.
 
 ```sh
 make setup
@@ -36,6 +37,7 @@ notarized release. `Dayleft.xcodeproj` is generated and ignored; edit `project.y
 
 - [Product specification](SPEC.md) and [scope](SCOPE.md): intended behavior and MVP boundaries.
 - [Roadmap](ROADMAP.md): scaffold, standalone MVP, then optional connections.
+- [Foundation plan](docs/plans/foundation.md): agreed decisions and PR sequence to the MVP.
 - [Development guide and command registry](docs/development.md).
 - [Documentation index](docs/README.md) and [current timing contract](docs/logic/timing.md).
 - [Manual verification](testing/MANUAL%20TO-DO/README.md): pending human checks.
@@ -43,6 +45,7 @@ notarized release. `Dayleft.xcodeproj` is generated and ignored; edit `project.y
 
 Swift 6 provides the shared timing core and Swift Testing covers its boundaries. SwiftUI
 `MenuBarExtra` provides the native menu bar surface. CI runs structural checks, formatting lint,
-core tests, and an unsigned Debug build on macOS 15 with Xcode 16.4.
+core tests, and an unsigned Debug build on macOS 26 with Xcode 26.6.
 
 The name Dayleft is a working project name; name and trademark availability have not been assessed.
+Licensed under the [MIT License](LICENSE).

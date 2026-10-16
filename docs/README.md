@@ -3,6 +3,7 @@
 - [SPEC](../SPEC.md): agreed product direction and intended behavior.
 - [SCOPE](../SCOPE.md): bootstrap, MVP, and later boundaries.
 - [ROADMAP](../ROADMAP.md): proposed delivery order.
+- [Foundation plan](plans/foundation.md): agreed decisions and PR sequence to the MVP.
 - [Development](development.md): prerequisites, real command registry, tool references, CI.
 - [Timing logic](logic/timing.md): implemented timing contract and source ownership.
 - [Manual verification](../testing/MANUAL%20TO-DO/README.md): consolidated human checks.
