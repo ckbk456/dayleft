@@ -1,6 +1,7 @@
 name: CI
 on:
   push:
+    branches: [main]
   pull_request:
 permissions:
   contents: read
@@ -9,15 +10,22 @@ concurrency:
   cancel-in-progress: true
 jobs:
   validate:
-    runs-on: macos-15
-    timeout-minutes: 15
+    runs-on: macos-26
+    timeout-minutes: 20
     env:
-      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, Node 24
         with:
           persist-credentials: false
-      - name: Set up checksum-pinned XcodeGen and generate project
+      - name: Restore pinned tools
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0, Node 24
+        with:
+          path: |
+            .tools/xcodegen
+            .tools/swift-format
+          key: tools-macos-26-xcode-26.6-${{ hashFiles('tooling/versions.env') }}
+      - name: Set up pinned XcodeGen and swift-format, then generate project
         run: make setup
       - name: Validate structure, lint, core tests, and unsigned native app build
         run: make check

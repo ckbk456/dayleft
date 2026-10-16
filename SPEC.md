@@ -50,7 +50,7 @@ have to dismiss setup prompts for unrelated connections.
 ## Decisions still open
 
 Workweek/overnight scheduling, break accounting, ambiguous/nonexistent local clock times,
-final app identity and icon, theme/accessibility polish, licensing, distribution/signing identity,
+final app name and icon, theme/accessibility polish, distribution/signing identity,
 and integration transport/provider selection remain open. Resolve each at its owning milestone.
 
 ## Current implementation

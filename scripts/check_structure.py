@@ -9,8 +9,9 @@ from urllib.parse import unquote
 
 root = Path(__file__).resolve().parent.parent
 required = [
-    "AGENTS.md", "README.md", "CONTRIBUTING.md", "SPEC.md", "SCOPE.md", "ROADMAP.md",
+    "AGENTS.md", "LICENSE", "README.md", "CONTRIBUTING.md", "SPEC.md", "SCOPE.md", "ROADMAP.md",
     "docs/README.md", "docs/logic/timing.md", "docs/development.md",
+    "docs/plans/foundation.md",
     "testing/MANUAL TO-DO/README.md", "testing/MANUAL TO-DO/timer.md",
     ".github/pull_request_template.md", ".github/workflows/ci.yml", "project.yml",
 ]
