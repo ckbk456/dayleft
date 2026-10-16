@@ -70,16 +70,13 @@ public struct ScheduleResolver: Sendable {
     return candidates.filter { $0 > now }.min() ?? now.addingTimeInterval(60)
   }
 
-  /// Whether the override's shift (or day off) is over and it can be discarded.
+  /// Whether the override can no longer affect any state and can be discarded.
+  ///
+  /// `state` only considers yesterday's and today's shifts, so an override stops mattering when
+  /// the second day after it begins. Dropping it at its shift's end would revive the usual hours
+  /// for a shift that was shortened to end early.
   public func isExpired(_ override: DayOverride, at now: Date) -> Bool {
-    let nextMidnight = override.day.adding(days: 1, calendar: calendar).startDate(in: calendar)
-    // The override decides its own day, so the recurring schedule passed here is irrelevant.
-    guard case .hours = override.change,
-      let window = window(on: override.day, schedule: .standard, override: override)
-    else {
-      return now >= nextMidnight
-    }
-    return now >= window.end
+    now >= override.day.adding(days: 2, calendar: calendar).startDate(in: calendar)
   }
 
   private func nextWindow(

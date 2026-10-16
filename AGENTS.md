@@ -13,7 +13,7 @@ proportionate validation; publication and other external actions need explicit a
 
 Read [SPEC.md](SPEC.md), [SCOPE.md](SCOPE.md), [ROADMAP.md](ROADMAP.md),
 [docs/README.md](docs/README.md), and the relevant implemented logic before editing.
-The current app is a sample preview; do not describe it as a completed live timer.
+The app is pre-release; do not describe it as user-ready until the manual timer guide passes.
 Keep the timer independent of connections. Slopometer and task providers are after MVP.
 SPEC, SCOPE, and the approved image are product contracts: consult the user for changes to
 agreed boundaries unless the current request already explicitly authorizes that change.
@@ -22,9 +22,7 @@ Research/roadmap describe proposals; they cannot silently override implemented l
 
 ## Git and delivery
 
-This new repository is bootstrapped on `codex/bootstrap`; its validated initial commit seeds
-the public `main` branch. This first publication is not a merge of existing branches.
-After bootstrap, `main` is the integration branch. Keep its checkout clean and never edit it
+`main` is the integration branch. Keep its checkout clean and never edit it
 directly. Inspect Git state, remote synchronization, dirty/ignored files and worktrees first.
 Reuse a suitable task-owned checkout or create an isolated worktree on
 `codex/<short-kebab-case-task>` from verified latest `origin/main`. Preserve unrelated work;

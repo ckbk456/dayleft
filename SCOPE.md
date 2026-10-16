@@ -1,18 +1,19 @@
 # Scope and delivery boundaries
 
-## This bootstrap includes
+## Implemented
 
-- A native SwiftUI macOS app target and generated Xcode project.
-- An option-1-inspired fixed sample-day menu bar preview with a working Quit action.
-- A dependency-free Swift package with a resolved-time-interval timing core and boundary tests.
-- Versioned XcodeGen setup, a serial validation gate, CI, project instructions, and product docs.
-- A public source repository. This initial publication is not a release.
+- A native SwiftUI menu bar app with a live countdown and panel from the default or saved hours.
+- A dependency-free timing core: schedules, weekdays, overnight shifts, today-only changes,
+  day states, refresh boundaries, and 24-hour dial geometry, with deterministic tests.
+- A presentation layer for menu bar, panel, and VoiceOver text; local settings persistence;
+  refresh on wake, clock, time-zone, locale, and day changes; a login-item wrapper.
+- Pinned tooling, a serial validation gate, CI, project instructions, and product docs.
 
 ## Standalone timer MVP remains to implement
 
-Live schedule resolution and refresh, persistent editable work hours, today-only overrides,
-before/during/after-work presentation, day rollover, Settings, opt-in login launch, lifecycle
-and accessibility verification. See [SPEC.md](SPEC.md) for the intended behavior.
+The dial component, Settings, "Adjust today…", the login-launch control, and the human checks
+in [the timer guide](testing/MANUAL%20TO-DO/timer.md). See [SPEC.md](SPEC.md) and
+[the foundation plan](docs/plans/foundation.md).
 
 ## Explicitly after MVP
 
@@ -27,6 +28,6 @@ telemetry, billing, public binary releases, and end-user support promises.
 
 ## Authority
 
-The bootstrap request authorizes the initial scaffold and public repository. It does not authorize
-a pull request, merging existing development branches, releases, deployment, or changes to the
-Slopometer repository. Future changes follow the request-mode rules in [AGENTS.md](AGENTS.md).
+Changes follow the request-mode rules in [AGENTS.md](AGENTS.md). Authority to implement or merge
+does not authorize releases, deployment, binary publication, or changes to the Slopometer
+repository.

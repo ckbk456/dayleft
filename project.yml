@@ -34,6 +34,8 @@ targets:
     dependencies:
       - package: DayleftCore
         product: DayleftCore
+      - package: DayleftCore
+        product: DayleftPresentation
 schemes:
   Dayleft:
     build:

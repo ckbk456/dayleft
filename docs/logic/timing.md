@@ -47,7 +47,10 @@ treated as before the start; values too large for `Int` clamp instead of trappin
 `nextRefresh(after:)` returns the earliest future instant among the next change in displayed
 whole minutes, the active cutoff, the next start, and the next local midnight. Apps also refresh
 on wake, clock and time-zone changes, and settings edits. `isExpired(_:at:)` reports that a
-custom-hours change ended with its shift, or a day off ended at the following midnight.
+change for day D can be discarded once day D+2 begins: `state` only looks at yesterday's and
+today's shifts, so the change still applies only to its own shift. Dropping it earlier would
+revive the usual hours of a shift that was shortened to end now. Only one change is stored, so
+applying a change for a new day replaces an older one that may still cover a running shift.
 
 ## Dial geometry
 
@@ -58,5 +61,10 @@ it came from rather than jumping across.
 
 ## Not yet implemented
 
-The app still shows a fixed sample day; live wiring is next. Manual checks live in
+## App wiring
+
+`App/Model/TimerModel.swift` resolves with `Calendar.autoupdatingCurrent`, discards an expired
+today-only change, and sleeps until `nextRefresh` (plus 50 ms so it lands after the boundary).
+It also refreshes on wake, clock, time-zone, calendar-day, and locale changes and after settings
+edits. `DayleftPresentation` owns all displayed text. Manual checks live in
 [the timer guide](../../testing/MANUAL%20TO-DO/timer.md).

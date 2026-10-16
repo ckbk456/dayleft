@@ -145,15 +145,27 @@ struct ScheduleResolverTests {
     #expect(snapshot.remainingWholeMinutes == 150)
   }
 
-  @Test func overridesExpireWhenTheirShiftEnds() {
-    let saturday = LocalDay(year: 2026, month: 10, day: 17)
+  @Test func overridesExpireOnlyWhenTheyCanNoLongerMatter() {
     let overnight = DayOverride(
       day: LocalDay(year: 2026, month: 10, day: 16), change: .hours(hours((20, 0), (4, 0))))
-    #expect(!resolver.isExpired(overnight, at: date(2026, 10, 17, 3, 59, in: la)))
-    #expect(resolver.isExpired(overnight, at: date(2026, 10, 17, 4, 0, in: la)))
-    let off = DayOverride(day: saturday, change: .dayOff)
-    #expect(!resolver.isExpired(off, at: date(2026, 10, 17, 23, 59, in: la)))
-    #expect(resolver.isExpired(off, at: date(2026, 10, 18, 0, 0, in: la)))
+    #expect(!resolver.isExpired(overnight, at: date(2026, 10, 17, 23, 59, in: la)))
+    #expect(resolver.isExpired(overnight, at: date(2026, 10, 18, 0, 0, in: la)))
+    let off = DayOverride(day: LocalDay(year: 2026, month: 10, day: 17), change: .dayOff)
+    #expect(!resolver.isExpired(off, at: date(2026, 10, 18, 23, 59, in: la)))
+    #expect(resolver.isExpired(off, at: date(2026, 10, 19, 0, 0, in: la)))
+  }
+
+  @Test func shorteningTheRunningShiftKeepsItFinished() {
+    // Thursday's usual 22:00–06:00 shift, cut to end at 02:00 while running.
+    let nights = schedule((22, 0), (6, 0))
+    let change = DayOverride(
+      day: LocalDay(year: 2026, month: 10, day: 15), change: .hours(hours((22, 0), (2, 0))))
+    let short = window(date(2026, 10, 15, 22, 0, in: la), date(2026, 10, 16, 2, 0, in: la))
+    let fridayNight = window(date(2026, 10, 16, 22, 0, in: la), date(2026, 10, 17, 6, 0, in: la))
+    let afterCut = date(2026, 10, 16, 3, 0, in: la)
+    #expect(!resolver.isExpired(change, at: afterCut))
+    #expect(
+      state(nights, 16, 3, 0, override: change) == .finished(window: short, next: fridayNight))
   }
 
   // MARK: Clock changes and calendars
