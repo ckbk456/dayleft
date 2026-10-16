@@ -5,10 +5,11 @@
 Pinned toolchain, schedule rules and timing core, presentation text, persistence, live refresh,
 and the live menu bar panel. Local/CI validation results are evidence, not completion of manual QA.
 
-## Standalone MVP — next
+## Standalone MVP — implemented, verification next
 
-1. Add the 24-hour dial, Settings, "Adjust today…", and opt-in login launch.
-2. Complete the [timer manual guide](testing/MANUAL%20TO-DO/timer.md), accessibility checks,
+The 24-hour dial, Settings, "Adjust today…", and opt-in login launch are implemented.
+
+1. Complete the [timer manual guide](testing/MANUAL%20TO-DO/timer.md), accessibility checks,
    and a distribution decision before calling the app ready for users.
 
 ## Optional connections — after MVP

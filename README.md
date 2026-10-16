@@ -2,9 +2,10 @@
 
 A small native macOS menu bar app that reminds you how much of your chosen workday is left.
 
-**Status: pre-release.** The menu bar shows a live countdown for the default Monday–Friday
-09:00–18:00 workday (or saved hours) and refreshes on wake, clock, and time-zone changes.
-Editing hours, today-only changes, and login launch controls are upcoming MVP work.
+**Status: MVP candidate, pending human verification.** The menu bar shows a live countdown for
+your workday. Settings edits recurring hours on a 24-hour dial (overnight shifts included),
+workdays, and opt-in launch at login; "Adjust today…" changes or skips only today's shift.
+The [manual timer guide](testing/MANUAL%20TO-DO/timer.md) must pass before calling it user-ready.
 
 ![Approved menu bar direction](docs/design/approved-menu-bar.png)
 
@@ -28,6 +29,10 @@ In Xcode, select the **Dayleft** scheme and **My Mac**, then Run. The app appear
 bar without a Dock icon. Choose **Quit** in its panel to stop it. For a local development run,
 select **Sign to Run Locally** if Xcode requests signing configuration; no development team
 or provider credentials are stored in this project.
+
+To try the app without Xcode, run `make app`: it builds a Release copy signed ad hoc for this
+Mac at `.build/xcode-local/Build/Products/Release/Dayleft.app`. Open it from Finder. It is not
+notarized and must not be distributed.
 
 `make build` creates an unsigned validation artifact at
 `.build/xcode/Build/Products/Debug/Dayleft.app`. It verifies compilation; it is not a signed,

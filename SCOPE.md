@@ -2,18 +2,20 @@
 
 ## Implemented
 
-- A native SwiftUI menu bar app with a live countdown and panel from the default or saved hours.
+- A native SwiftUI menu bar app with a live countdown and the approved panel layout.
+- Settings with a 24-hour dial, workday toggles, and opt-in login launch; "Adjust today…" for
+  custom hours or a day off on the current shift.
 - A dependency-free timing core: schedules, weekdays, overnight shifts, today-only changes,
   day states, refresh boundaries, and 24-hour dial geometry, with deterministic tests.
 - A presentation layer for menu bar, panel, and VoiceOver text; local settings persistence;
   refresh on wake, clock, time-zone, locale, and day changes; a login-item wrapper.
 - Pinned tooling, a serial validation gate, CI, project instructions, and product docs.
 
-## Standalone timer MVP remains to implement
+## Standalone timer MVP remains to verify
 
-The dial component, Settings, "Adjust today…", the login-launch control, and the human checks
-in [the timer guide](testing/MANUAL%20TO-DO/timer.md). See [SPEC.md](SPEC.md) and
-[the foundation plan](docs/plans/foundation.md).
+The human checks in [the timer guide](testing/MANUAL%20TO-DO/timer.md): native menu bar
+behavior, visual fidelity, accessibility, sleep/wake, clock changes, and login launch. See
+[SPEC.md](SPEC.md) and [the foundation plan](docs/plans/foundation.md).
 
 ## Explicitly after MVP
 

@@ -34,6 +34,43 @@ final class TimerModel {
     refresh()
   }
 
+  // MARK: Today-only changes
+
+  /// The shift "Adjust today…" edits: the running shift, otherwise the one starting today.
+  var adjustableDay: LocalDay {
+    let calendar = Calendar.autoupdatingCurrent
+    if case .working(let window, _) = state {
+      return LocalDay(containing: window.start, calendar: calendar)
+    }
+    return LocalDay(containing: Date(), calendar: calendar)
+  }
+
+  /// The existing change for the adjustable shift, if any.
+  var adjustableChange: DayOverride.Change? {
+    guard let override = settings.override, override.day == adjustableDay else { return nil }
+    return override.change
+  }
+
+  var nowTimeOfDay: TimeOfDay {
+    let parts = Calendar.autoupdatingCurrent.dateComponents([.hour, .minute], from: Date())
+    return TimeOfDay(wrappingMinutes: (parts.hour ?? 0) * 60 + (parts.minute ?? 0))
+  }
+
+  /// Whether applying these hours would end (or skip) the adjustable shift immediately.
+  func endsShiftNow(_ hours: ShiftHours) -> Bool {
+    let candidate = DayOverride(day: adjustableDay, change: .hours(hours))
+    let resolver = ScheduleResolver(calendar: .autoupdatingCurrent)
+    guard
+      let window = resolver.window(
+        on: candidate.day, schedule: settings.schedule, override: candidate)
+    else { return false }
+    return window.end <= Date()
+  }
+
+  func applyToday(_ change: DayOverride.Change) {
+    updateOverride(DayOverride(day: adjustableDay, change: change))
+  }
+
   /// Recompute now, discard an expired today-only change, and schedule the next refresh.
   func refresh() {
     let now = Date()

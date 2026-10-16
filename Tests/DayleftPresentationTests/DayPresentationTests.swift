@@ -80,6 +80,17 @@ struct DayPresentationTests {
     #expect(american.hourLabel(18).hasSuffix("PM"))
   }
 
+  @Test func summarizesWorkdays() {
+    var mondayFirst = calendar
+    mondayFirst.firstWeekday = 2
+    let formatter = DayleftFormatter(calendar: mondayFirst, locale: Locale(identifier: "en_GB"))
+    #expect(formatter.orderedWeekdays.first == .monday)
+    #expect(formatter.orderedWeekdays.last == .sunday)
+    #expect(formatter.workdaysSummary(Weekday.workweek) == "Weekdays")
+    #expect(formatter.workdaysSummary(Set(Weekday.allCases)) == "Every day")
+    #expect(formatter.workdaysSummary([.sunday, .tuesday]) == "Tue, Sun")
+  }
+
   @Test func settingsFallBackToDefaults() throws {
     #expect(SettingsDocument.decode(nil) == SettingsDocument())
     #expect(SettingsDocument.decode(Data("not json".utf8)).schedule == .standard)

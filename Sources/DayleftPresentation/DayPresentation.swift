@@ -100,6 +100,25 @@ public struct DayleftFormatter: Sendable {
     return self.time(reference)
   }
 
+  /// Weekdays in the calendar's display order, starting from its first weekday.
+  public var orderedWeekdays: [Weekday] {
+    (0..<7).map { Weekday(rawValue: (calendar.firstWeekday - 1 + $0) % 7 + 1)! }
+  }
+
+  public func shortName(_ weekday: Weekday) -> String {
+    var localized = calendar
+    localized.locale = locale
+    return localized.shortWeekdaySymbols[weekday.rawValue - 1]
+  }
+
+  /// `Every day`, `Weekdays`, `Weekends`, or the short names in display order.
+  public func workdaysSummary(_ workdays: Set<Weekday>) -> String {
+    if workdays.count == 7 { return "Every day" }
+    if workdays == Weekday.workweek { return "Weekdays" }
+    if workdays == [.saturday, .sunday] { return "Weekends" }
+    return orderedWeekdays.filter(workdays.contains).map(shortName).joined(separator: ", ")
+  }
+
   /// Hour-only label for dial marks, e.g. `6 AM` or `06`.
   public func hourLabel(_ hour: Int) -> String {
     let reference = calendar.date(
