@@ -59,7 +59,7 @@ provider configuration, signing secret, or environment file. Settings live in lo
 ## Validation and release boundaries
 
 CI runs on pushes to `main` and on pull requests. It uses SHA-pinned checkout and cache
-actions, pinned tools cached by `tooling/versions.env`, one serial gate, minimal read
+actions, pinned tools cached by `tooling/versions.env` (saved only from `main`, restored by PRs), one serial gate, minimal read
 permission, and a 20-minute timeout. It verifies metadata/docs links, Swift style, core tests,
 and an unsigned Debug app build. It does not run a native UI suite or sign/notarize the app.
 
