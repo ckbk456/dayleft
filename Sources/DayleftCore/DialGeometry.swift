@@ -58,6 +58,65 @@ public enum DialGeometry {
     return result ?? hours
   }
 
+  /// The handle closest to an angle among all sessions; ties prefer the earlier session's start.
+  public static func nearestHandle(to degrees: Double, in sessions: WorkSessions)
+    -> (index: Int, handle: Handle)
+  {
+    var best = (index: 0, handle: Handle.start, distance: Double.infinity)
+    for (index, session) in sessions.all.enumerated() {
+      for handle in [Handle.start, .cutoff] {
+        let time = handle == .start ? session.start : session.cutoff
+        let distance = circularDistance(degrees, angle(for: time))
+        if distance < best.distance { best = (index, handle, distance) }
+      }
+    }
+    return (best.index, best.handle)
+  }
+
+  /// Moves one handle of a session, keeping that session at least the minimum length and a
+  /// minimum break from its neighbours. A target outside that range stops at its nearer end, so
+  /// a handle never jumps across another session. Returns the sessions and the moved session's
+  /// new index, which changes only when a start moves across midnight.
+  public static func moving(
+    _ handle: Handle, ofSession index: Int, in sessions: WorkSessions, to time: TimeOfDay
+  ) -> (sessions: WorkSessions, index: Int) {
+    let session = sessions.all[index]
+    guard sessions.count > 1 else {
+      return (WorkSessions(moving(handle, of: session, to: time)), 0)
+    }
+    let count = sessions.count
+    let previous = sessions.all[(index - 1 + count) % count]
+    let next = sessions.all[(index + 1) % count]
+    let gap = WorkSessions.minimumBreakMinutes
+    let minimum = ShiftHours.minimumMinutes
+    // The handle's allowed range, running clockwise from `low` to `high`.
+    let (low, high) =
+      handle == .start
+      ? (previous.cutoff.adding(minutes: gap), session.cutoff.adding(minutes: -minimum))
+      : (session.start.adding(minutes: minimum), next.start.adding(minutes: -gap))
+    let target = time.snapped(to: ShiftHours.stepMinutes)
+    let span = low.minutes(until: high)
+    let offset = low.minutes(until: target)
+    let placed =
+      offset <= span
+      ? target : (offset - span <= TimeOfDay.minutesPerDay - offset ? high : low)
+    let moved =
+      handle == .start
+      ? try? ShiftHours(start: placed, cutoff: session.cutoff)
+      : try? ShiftHours(start: session.start, cutoff: placed)
+    guard let moved, let result = try? sessions.replacing(at: index, with: moved),
+      let newIndex = result.all.firstIndex(of: moved)
+    else { return (sessions, index) }
+    return (result, newIndex)
+  }
+
+  /// The session whose arc contains an angle, if any.
+  public static func session(at degrees: Double, in sessions: WorkSessions) -> Int? {
+    let time = TimeOfDay(
+      wrappingMinutes: Int((normalized(degrees) / 360 * Double(TimeOfDay.minutesPerDay)).rounded()))
+    return sessions.all.firstIndex { $0.start.minutes(until: time) < $0.durationMinutes }
+  }
+
   private static func normalized(_ degrees: Double) -> Double {
     let value = degrees.truncatingRemainder(dividingBy: 360)
     return value < 0 ? value + 360 : value

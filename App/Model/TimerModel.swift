@@ -10,6 +10,8 @@ import Observation
 final class TimerModel {
   private(set) var presentation: DayPresentation
   private(set) var state: DayState
+  /// The windows of the work day `state` belongs to.
+  private(set) var timeline: [WorkWindow]
 
   let settings: SettingsStore
   @ObservationIgnored private var refreshTask: Task<Void, Never>?
@@ -19,6 +21,7 @@ final class TimerModel {
     self.settings = settings
     let snapshot = Self.compute(settings: settings, now: Date())
     state = snapshot.state
+    timeline = snapshot.timeline
     presentation = snapshot.presentation
     observeSystemChanges()
     refresh()
@@ -51,25 +54,28 @@ final class TimerModel {
     return override.change
   }
 
-  /// Whether the regular schedule has work on the adjustable day, ignoring today-only changes.
-  var adjustableDayIsWorkday: Bool {
-    settings.schedule.workdays.contains(adjustableDay.weekday(in: .autoupdatingCurrent))
+  /// The regular schedule's sessions on the adjustable day, ignoring today-only changes.
+  var regularSessionsForAdjustableDay: WorkSessions? {
+    settings.schedule.sessions(on: adjustableDay.weekday(in: .autoupdatingCurrent))
   }
+
+  /// Whether the regular schedule has work on the adjustable day, ignoring today-only changes.
+  var adjustableDayIsWorkday: Bool { regularSessionsForAdjustableDay != nil }
 
   var nowTimeOfDay: TimeOfDay {
     let parts = Calendar.autoupdatingCurrent.dateComponents([.hour, .minute], from: Date())
     return TimeOfDay(wrappingMinutes: (parts.hour ?? 0) * 60 + (parts.minute ?? 0))
   }
 
-  /// Whether applying these hours would end (or skip) the adjustable shift immediately.
-  func endsShiftNow(_ hours: ShiftHours) -> Bool {
-    let candidate = DayOverride(day: adjustableDay, change: .hours(hours))
+  /// Whether applying these sessions would stop the work running now.
+  func endsWorkNow(_ sessions: WorkSessions) -> Bool {
+    guard case .working = state else { return false }
+    let candidate = DayOverride(day: adjustableDay, change: .sessions(sessions))
     let resolver = ScheduleResolver(calendar: .autoupdatingCurrent)
-    guard
-      let window = resolver.window(
-        on: candidate.day, schedule: settings.schedule, override: candidate)
-    else { return false }
-    return window.end <= Date()
+    let now = Date()
+    let after = resolver.state(at: now, schedule: settings.schedule, override: candidate)
+    if case .working = after { return false }
+    return true
   }
 
   func applyToday(_ change: DayOverride.Change) {
@@ -85,6 +91,7 @@ final class TimerModel {
     }
     let snapshot = Self.compute(settings: settings, now: now)
     state = snapshot.state
+    timeline = snapshot.timeline
     presentation = snapshot.presentation
     let next = resolver.nextRefresh(
       after: now, schedule: settings.schedule, override: settings.override)
@@ -99,13 +106,18 @@ final class TimerModel {
   }
 
   private static func compute(settings: SettingsStore, now: Date) -> (
-    state: DayState, presentation: DayPresentation
+    state: DayState, timeline: [WorkWindow], presentation: DayPresentation
   ) {
     let calendar = Calendar.autoupdatingCurrent
-    let state = ScheduleResolver(calendar: calendar).state(
-      at: now, schedule: settings.schedule, override: settings.override)
+    let resolver = ScheduleResolver(calendar: calendar)
+    let state = resolver.state(at: now, schedule: settings.schedule, override: settings.override)
+    let timeline = resolver.timeline(
+      for: state, schedule: settings.schedule, override: settings.override)
     let formatter = DayleftFormatter(calendar: calendar, locale: .autoupdatingCurrent)
-    return (state, DayPresentation(state: state, now: now, formatter: formatter))
+    return (
+      state, timeline,
+      DayPresentation(state: state, now: now, formatter: formatter, timeline: timeline)
+    )
   }
 
   /// The model lives for the app's lifetime, so observers are never removed.

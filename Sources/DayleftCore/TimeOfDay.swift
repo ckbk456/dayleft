@@ -5,6 +5,10 @@ public enum ScheduleError: Error, Equatable, Sendable {
   case offStep
   case shiftTooShort
   case noWorkdays
+  case noSessions
+  case tooManySessions
+  case sessionsOverlap
+  case overlappingDays
 }
 
 /// A wall-clock time within a local day, independent of any date or time zone.

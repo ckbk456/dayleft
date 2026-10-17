@@ -10,8 +10,8 @@ settings:
     SWIFT_STRICT_CONCURRENCY: complete
     SWIFT_TREAT_WARNINGS_AS_ERRORS: YES
     # Semantic version of the app; see docs/development.md#versioning before changing it.
-    MARKETING_VERSION: 0.3.0
-    CURRENT_PROJECT_VERSION: 3
+    MARKETING_VERSION: 0.4.0
+    CURRENT_PROJECT_VERSION: 4
 packages:
   DayleftCore:
     path: .

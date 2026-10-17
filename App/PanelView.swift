@@ -25,11 +25,7 @@ struct PanelView: View {
         PanelRow(title: "Today", value: todayText, highlighted: model.adjustableChange != nil) {
           open(.today)
         }
-        PanelRow(
-          title: "Regular schedule",
-          value:
-            "\(regularHoursText), \(formatter.workdaysSummary(model.settings.schedule.workdays))"
-        ) {
+        PanelRow(title: "Regular schedule", value: regularText) {
           open(.schedule)
         }
       }
@@ -54,13 +50,18 @@ struct PanelView: View {
           .monospacedDigit()
         Text(view.detail)
           .foregroundStyle(.secondary)
+        if let note = view.dayNote {
+          Text(note)
+            .font(.callout)
+            .foregroundStyle(.secondary)
+        }
       }
       .accessibilityElement(children: .combine)
 
       if let progress = view.progress {
         VStack(spacing: 6) {
-          ProgressView(value: progress.elapsedFraction)
-            .tint(.orange)
+          DayProgressBar(progress: progress)
+            .accessibilityElement()
             .accessibilityLabel("Workday elapsed")
             .accessibilityValue(progress.accessibilityValue)
           HStack {
@@ -110,21 +111,24 @@ struct PanelView: View {
     .buttonStyle(PanelIconButtonStyle())
   }
 
-  private var regularHoursText: String {
-    let hours = model.settings.schedule.hours
-    return "\(formatter.time(hours.start)) – \(formatter.time(hours.cutoff))"
+  /// `06:30 – 16:55, Weekdays` for one plan, otherwise the number of day plans.
+  private var regularText: String {
+    let schedule = model.settings.schedule
+    guard schedule.plans.count == 1 else { return "\(schedule.plans.count) day plans" }
+    let plan = schedule.plans[0]
+    return "\(formatter.sessionsSummary(plan.sessions)), \(formatter.workdaysSummary(plan.days))"
   }
 
   /// Today's work: a today-only change, a non-workday, or the regular hours.
   private var todayText: String {
     switch model.adjustableChange {
-    case .hours(let custom):
-      return "\(formatter.time(custom.start)) – \(formatter.time(custom.cutoff)) (changed)"
+    case .sessions(let custom):
+      return "\(formatter.sessionsSummary(custom)) (changed)"
     case .dayOff:
       return "Day off (changed)"
     case nil:
-      if case .dayOff = model.state { return "Not a workday" }
-      return regularHoursText
+      guard let regular = model.regularSessionsForAdjustableDay else { return "Not a workday" }
+      return formatter.sessionsSummary(regular)
     }
   }
 
@@ -184,5 +188,34 @@ private struct PanelIconButtonStyle: ButtonStyle {
           .fill(configuration.isPressed ? AnyShapeStyle(.quaternary) : AnyShapeStyle(.clear))
       )
       .contentShape(Rectangle())
+  }
+}
+
+/// The day's sessions on one bar: breaks are gaps, and work before now is solid.
+private struct DayProgressBar: View {
+  let progress: DayPresentation.Progress
+
+  var body: some View {
+    GeometryReader { proxy in
+      let width = proxy.size.width
+      ZStack(alignment: .leading) {
+        ForEach(Array(progress.segments.enumerated()), id: \.offset) { _, segment in
+          let length = segment.end - segment.start
+          // The part of this session before now.
+          let done = min(max(progress.nowFraction - segment.start, 0), length)
+          Capsule()
+            .fill(Color.orange.opacity(0.28))
+            .frame(width: max(length * width, 4))
+            .offset(x: segment.start * width)
+          if done > 0 {
+            Capsule()
+              .fill(Color.orange)
+              .frame(width: max(done * width, 4))
+              .offset(x: segment.start * width)
+          }
+        }
+      }
+    }
+    .frame(height: 6)
   }
 }

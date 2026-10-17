@@ -3,10 +3,10 @@
 ## Implemented
 
 - A native SwiftUI menu bar app with a live countdown and a compact read-only panel.
-- A separate settings window: the regular schedule on a 24-hour dial, workday toggles, and opt-in login
-  launch; a Today pane for
-  custom hours or a day off on the current shift.
-- A dependency-free timing core: schedules, weekdays, overnight shifts, today-only changes,
+- A separate settings window: the regular schedule as day plans (weekdays plus up to four
+  sessions each, edited on a multi-session 24-hour dial with a session list), opt-in login
+  launch, and a Today pane for different sessions or a day off on the current day.
+- A dependency-free timing core: day plans, sessions and breaks, overnight sessions, today-only changes,
   day states, refresh boundaries, and 24-hour dial geometry, with deterministic tests.
 - A presentation layer for menu bar, panel, and VoiceOver text; local settings persistence;
   refresh on wake, clock, time-zone, locale, and day changes; a login-item wrapper.
