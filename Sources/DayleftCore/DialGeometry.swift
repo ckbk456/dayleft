@@ -117,6 +117,44 @@ public enum DialGeometry {
     return sessions.all.firstIndex { $0.start.minutes(until: time) < $0.durationMinutes }
   }
 
+  /// What a click on the dial lands on.
+  public enum Target: Equatable, Sendable {
+    /// A session's start or cutoff handle.
+    case handle(index: Int, Handle)
+    /// A session's arc, away from its handles.
+    case session(Int)
+  }
+
+  /// The handle or arc under a point, given as an offset from the dial centre with y pointing
+  /// down. A handle counts within `handleReach` points of its centre on the ring, preferring the
+  /// selected session's handles; an arc counts within `ringReach` points of the ring. Anywhere
+  /// else, including the middle of the dial and gaps between sessions, is no target.
+  public static func target(
+    dx: Double, dy: Double, radius: Double, ringReach: Double, handleReach: Double,
+    in sessions: WorkSessions, selected: Int
+  ) -> Target? {
+    let count = sessions.count
+    let order = (0..<count).map { (selected + $0) % count }
+    var best: (target: Target, distance: Double)?
+    for index in order {
+      for handle in [Handle.start, .cutoff] {
+        let session = sessions.all[index]
+        let radians = angle(for: handle == .start ? session.start : session.cutoff) * .pi / 180
+        let distance = hypot(dx - radius * sin(radians), dy + radius * cos(radians))
+        guard distance <= handleReach else { continue }
+        if index == selected { return .handle(index: index, handle) }
+        if distance < best?.distance ?? .infinity {
+          best = (.handle(index: index, handle), distance)
+        }
+      }
+    }
+    if let best { return best.target }
+    guard abs(hypot(dx, dy) - radius) <= ringReach,
+      let index = session(at: angle(dx: dx, dy: dy), in: sessions)
+    else { return nil }
+    return .session(index)
+  }
+
   private static func normalized(_ degrees: Double) -> Double {
     let value = degrees.truncatingRemainder(dividingBy: 360)
     return value < 0 ? value + 360 : value

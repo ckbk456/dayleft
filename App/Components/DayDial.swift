@@ -6,9 +6,10 @@ import SwiftUI
 ///
 /// Every session is an arc; the selected one is bright and has the handles. Its start and cutoff
 /// are the large labels above the dial, each marked with its handle's icon, and the lengths are
-/// secondary text below, so nothing big changes except the time being moved. Drag near any
-/// handle to select that session and move it, click an arc to select it, focus a handle and use
-/// the arrow keys (Shift for an hour), adjust handles with VoiceOver, or click a time to type it.
+/// secondary text below, so nothing big changes except the time being moved. Drag a handle or
+/// another session's arc end to select that session and move it, click an arc to select it,
+/// focus a handle and use the arrow keys (Shift for an hour), adjust handles with VoiceOver, or
+/// click a time to type it. Clicks off the ring, or on a gap between sessions, do nothing.
 struct DayDial: View {
   @Binding var sessions: WorkSessions
   @Binding var selection: Int
@@ -24,8 +25,8 @@ struct DayDial: View {
 
   private let ringWidth: CGFloat = 18
   private let handleSize: CGFloat = 28
-  /// A drag starting this close to a handle (in degrees) grabs it rather than selecting an arc.
-  private let grabDegrees = 9.0
+  /// How far outside the ring band, in points, a click still lands on an arc.
+  private let ringSlop: CGFloat = 10
 
   private var selected: ShiftHours { sessions.all[min(selection, sessions.count - 1)] }
 
@@ -57,7 +58,7 @@ struct DayDial: View {
           handle(.cutoff, center: center, radius: radius)
         }
         .contentShape(Rectangle())
-        .gesture(dragGesture(center: center))
+        .gesture(dragGesture(center: center, radius: radius))
       }
       .aspectRatio(1, contentMode: .fit)
       .accessibilityElement(children: .contain)
@@ -253,30 +254,30 @@ struct DayDial: View {
 
   // MARK: Interaction
 
-  private func dragGesture(center: CGPoint) -> some Gesture {
+  private func dragGesture(center: CGPoint, radius: CGFloat) -> some Gesture {
     DragGesture(minimumDistance: 0)
       .onChanged { value in
-        let angle = DialGeometry.angle(
-          dx: value.location.x - center.x, dy: value.location.y - center.y)
         if dragging == nil {
-          let startAngle = DialGeometry.angle(
-            dx: value.startLocation.x - center.x, dy: value.startLocation.y - center.y)
-          let nearest = DialGeometry.nearestHandle(to: startAngle, in: sessions)
-          let nearestTime =
-            nearest.handle == .start
-            ? sessions.all[nearest.index].start : sessions.all[nearest.index].cutoff
-          let distance = abs(DialGeometry.angle(for: nearestTime) - startAngle)
-          let grabbed = min(distance, 360 - distance) <= grabDegrees
-          // Clicking an arc away from its handles only selects that session.
-          if !grabbed, let tapped = DialGeometry.session(at: startAngle, in: sessions) {
-            selection = tapped
+          // Only a press on a handle or an arc does anything; the rest of the dial is inert.
+          let target = DialGeometry.target(
+            dx: value.startLocation.x - center.x, dy: value.startLocation.y - center.y,
+            radius: radius, ringReach: ringWidth / 2 + ringSlop, handleReach: handleSize / 2 + 4,
+            in: sessions, selected: min(selection, sessions.count - 1))
+          switch target {
+          case .handle(let index, let handle):
+            selection = index
+            dragging = handle
+            focusedHandle = handle
+          case .session(let index):
+            selection = index
+            return
+          case nil:
             return
           }
-          selection = nearest.index
-          dragging = nearest.handle
-          focusedHandle = nearest.handle
         }
         guard let handle = dragging else { return }
+        let angle = DialGeometry.angle(
+          dx: value.location.x - center.x, dy: value.location.y - center.y)
         move(handle, to: DialGeometry.time(atAngle: angle))
       }
       .onEnded { _ in dragging = nil }
