@@ -35,6 +35,8 @@ Use System Settings → General → Date & Time to change the clock, time zone, 
       today-only changes. On a non-workday, Today says so instead of quoting regular hours.
 - [ ] Today: Revert and Apply stay disabled until the draft differs; reopening the window drops
       an unapplied draft; the dial is not cramped and its labels do not overlap.
+- [ ] The sidebar cannot be dragged wider, narrower, or collapsed. With Appearance → Sidebar
+      icon size Small, Medium, and Large, "Regular Schedule" is never truncated or clipped.
 
 ## Sessions and day plans — pending
 
