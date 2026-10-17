@@ -34,6 +34,9 @@ To try the app without Xcode, run `make app`: it builds a Release copy signed ad
 Mac at `.build/xcode-local/Build/Products/Release/Dayleft.app`. Open it from Finder. It is not
 notarized and must not be distributed.
 
+The panel footer shows the running build as `version+commit` (for example `0.2.0+abc1234`);
+see [versioning](docs/development.md#versioning).
+
 `make build` creates an unsigned validation artifact at
 `.build/xcode/Build/Products/Debug/Dayleft.app`. It verifies compilation; it is not a signed,
 notarized release. `Dayleft.xcodeproj` is generated and ignored; edit `project.yml` instead.
