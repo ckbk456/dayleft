@@ -15,6 +15,7 @@ struct GeneralPane: View {
               .foregroundStyle(.secondary)
             Spacer()
             Button("Open Login Items") { loginItem.openSystemSettings() }
+              .dayleftGlassButtonStyle()
           }
         }
         if let error = loginItem.lastError {

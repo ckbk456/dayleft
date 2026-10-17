@@ -15,11 +15,12 @@ The image is visual direction; its decorative slogan is not a product requiremen
 The menu bar shows a small hourglass and hours/minutes. Clicking it opens a compact, read-only
 panel: remaining time, finish time, a clearly identified elapsed-workday bar, today's hours, and
 the regular schedule. Nothing is edited inside the panel. Its rows, a Settings button, and ⌘, open a
-separate settings window (sidebar panes: Today, Regular Schedule, General, About), where hours are
+separate settings window (tabs across the top: Today, Regular Schedule, General, About), where hours are
 edited on a 24-hour dial. The UI uses two terms consistently: the **regular schedule** (day
 plans with their weekdays and sessions) and **today's work** (a today-only change that never
-edits the schedule). The app has a Dock icon only while that window is open. Keep the primary
-countdown prominent when later connected information is enabled.
+edits the schedule). On macOS 26 and later the panel and window use Liquid Glass; macOS 14 and
+15 keep the standard materials. The app has a Dock icon only while that window is open. Keep
+the primary countdown prominent when later connected information is enabled.
 
 ## Standalone MVP: intended behavior
 

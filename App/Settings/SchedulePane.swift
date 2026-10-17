@@ -51,6 +51,7 @@ struct SchedulePane: View {
             .foregroundStyle(.secondary)
         }
         .controlSize(.small)
+        .dayleftGlassButtonStyle()
       }
 
       Section {
@@ -165,10 +166,7 @@ private struct PlanRow: View {
       }
       .padding(.vertical, 4)
       .padding(.horizontal, 6)
-      .background(
-        RoundedRectangle(cornerRadius: 6)
-          .fill(isSelected ? AnyShapeStyle(Color.orange.opacity(0.16)) : AnyShapeStyle(.clear))
-      )
+      .dayleftSelection(isSelected)
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
