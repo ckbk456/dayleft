@@ -16,20 +16,33 @@ The menu bar shows a small hourglass and hours/minutes. Clicking it opens a comp
 panel: remaining time, finish time, a clearly identified elapsed-workday bar, today's hours, and
 the regular schedule. Nothing is edited inside the panel. Its rows, a Settings button, and ⌘, open a
 separate settings window (sidebar panes: Today, Regular Schedule, General, About), where hours are
-edited on a 24-hour dial. The UI uses two terms consistently: the **regular schedule** (recurring
-hours and workdays) and **today's work** (a today-only change that never edits the schedule). The app has a Dock icon only while that window is open. Keep the primary
+edited on a 24-hour dial. The UI uses two terms consistently: the **regular schedule** (day
+plans with their weekdays and sessions) and **today's work** (a today-only change that never
+edits the schedule). The app has a Dock icon only while that window is open. Keep the primary
 countdown prominent when later connected information is enabled.
 
 ## Standalone MVP: intended behavior
 
-- Let the user choose recurring start and cutoff times on a 24-hour dial (5-minute steps, at
-  least 15 minutes) and which weekdays are workdays. Defaults: Monday–Friday, 09:00–18:00.
-  A cutoff at or before the start ends the next day; a shift belongs to the day it starts.
-- Let the user change today's hours, or take today off, without changing the recurring
-  defaults. The change applies to the shift starting today and ends when that shift ends.
-- Before work, show the start time; during work, the remaining time; after the cutoff, `Done`
-  until local midnight or the next start, whichever is first; on a day off, `Off`. Do not
-  replace `Done` with a nearly full-day countdown. Working past the cutoff is not shown.
+- The regular schedule is a list of up to 7 **day plans** (e.g. "Weekdays", "Weekend"). Each
+  plan has a name, the weekdays it owns (a weekday belongs to at most one plan; days in no plan
+  are days off, e.g. a Wednesday off), and 1–4 **sessions**. Defaults: one "Weekdays" plan,
+  Monday–Friday, 09:00–18:00. Plans, days, and sessions can be added, edited, and removed.
+- Sessions are edited on a 24-hour dial (5-minute steps, at least 15 minutes each) that draws
+  every session as an arc, with a session list below it; selecting a row highlights its arc and
+  gives it the handles. Sessions are separated by at least a 5-minute break and never overlap;
+  only a day's last session may cross midnight, and a day's sessions fit within 24 hours.
+  A session belongs to the day it starts. Breaks are not counted as work.
+- Let the user change today's sessions, or take today off, without changing the regular
+  schedule. The change applies to the work starting today and ends when that work ends.
+- Before work, show the first start time; during a session, the time left in that session
+  (the panel adds the work left today across sessions); on a break between sessions, the next
+  session's start (the panel labels it a break and counts down to it); after the last cutoff,
+  `Done` until local midnight or the next start, whichever is first; on a day off, `Off`. Work
+  that ended today from yesterday's overnight session shows `Done`, not a break. Do not replace
+  `Done` with a nearly full-day countdown. Working past the cutoff is not shown.
+- The panel's progress bar spans the day's first start to its last cutoff; sessions are
+  segments, breaks are gaps, and work before now is solid.
+- Settings saved by versions with a single set of hours migrate to one plan with one session.
 - Skipped local times move to the next valid time and repeated times use their first
   occurrence; countdowns use real elapsed time.
 - Recompute from the current clock. Refresh after sleep/wake, clock changes, timezone changes,
@@ -57,7 +70,7 @@ have to dismiss setup prompts for unrelated connections.
 
 ## Decisions still open
 
-Different hours per weekday, break accounting, working-past-cutoff display, final app name and
+Working-past-cutoff display, final app name and
 icon, theme/accessibility polish, distribution/signing identity,
 and integration transport/provider selection remain open. Resolve each at its owning milestone.
 

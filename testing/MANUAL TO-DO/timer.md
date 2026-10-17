@@ -34,6 +34,19 @@ Use System Settings → General → Date & Time to change the clock, time zone, 
 - [ ] Today: Revert and Apply stay disabled until the draft differs; reopening the window drops
       an unapplied draft; the dial is not cramped and its labels do not overlap.
 
+## Sessions and day plans — pending
+
+- [ ] Existing single-hours settings appear after updating as one plan with one session.
+- [ ] Add Session centres up to an hour in the longest break; Remove keeps at least one; four
+      is the maximum. Selecting a row highlights its arc and moves the handles to it; dragging
+      near any handle selects that session; handles stop a 5-minute break from other sessions.
+- [ ] A 07–11, 13–17, 20–00 day: during a session the menu bar counts down the session and the
+      panel shows work left today; during a break the menu bar shows the next start and the
+      panel says BREAK; the bar shows gaps; after midnight it shows `Done`/`Off` as expected.
+- [ ] Day plans: add a Weekend plan, move Friday into it from Weekdays, remove a plan (its days
+      become days off), and leave Wednesday in no plan; the panel and states follow.
+- [ ] Today → Different hours edits several sessions for today only.
+
 ## MVP acceptance criteria — pending
 
 1. [ ] First launch uses Monday–Friday 09:00–18:00 and shows the correct current state.

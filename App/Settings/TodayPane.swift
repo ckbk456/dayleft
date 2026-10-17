@@ -3,7 +3,7 @@ import DayleftPresentation
 import SwiftUI
 
 /// Changes only today's work (or the work running now); the regular schedule is never edited here.
-/// Edits are a draft until Apply, since a change can end the running shift immediately.
+/// Edits are a draft until Apply, since a change can end the running work immediately.
 struct TodayPane: View {
   let model: TimerModel
   let navigation: SettingsNavigation
@@ -15,12 +15,12 @@ struct TodayPane: View {
   }
 
   @State private var choice: Choice = .regular
-  @State private var hours: ShiftHours
+  @State private var sessions: WorkSessions
 
   init(model: TimerModel, navigation: SettingsNavigation) {
     self.model = model
     self.navigation = navigation
-    _hours = State(initialValue: model.settings.schedule.hours)
+    _sessions = State(initialValue: Self.regularOrDefault(model))
   }
 
   private var formatter: DayleftFormatter {
@@ -39,6 +39,11 @@ struct TodayPane: View {
               Text(model.presentation.detail)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+              if let note = model.presentation.dayNote {
+                Text(note)
+                  .font(.caption)
+                  .foregroundStyle(.secondary)
+              }
             }
           }
         }
@@ -53,26 +58,14 @@ struct TodayPane: View {
 
           switch choice {
           case .regular:
-            Text(
-              model.adjustableDayIsWorkday
-                ? "Today follows your regular schedule: \(regularHoursText)."
-                : "Today isn't a workday in your regular schedule. Choose Different hours to work anyway."
-            )
-            .foregroundStyle(.secondary)
+            Text(regularText)
+              .foregroundStyle(.secondary)
           case .different:
             Label(
-              "These hours are for today only. Your regular schedule stays \(regularHoursText).",
+              "These sessions are for today only. Your regular schedule stays as it is.",
               systemImage: "calendar.badge.clock"
             )
             .foregroundStyle(.secondary)
-            DayDial(
-              hours: $hours, now: model.nowTimeOfDay,
-              note: model.endsShiftNow(hours) ? "Applying this ends today's work now." : nil,
-              formatter: formatter
-            )
-            .frame(width: 320)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
           case .dayOff:
             Text(
               model.adjustableDayIsWorkday
@@ -95,6 +88,12 @@ struct TodayPane: View {
               .controlSize(.small)
           }
         }
+
+        if choice == .different {
+          SessionsEditor(
+            sessions: $sessions, title: "Today's sessions", now: model.nowTimeOfDay,
+            note: model.endsWorkNow(sessions) ? "Applying this ends today's work now." : nil)
+        }
       }
       .formStyle(.grouped)
 
@@ -114,40 +113,46 @@ struct TodayPane: View {
     .onChange(of: navigation.openCount) { load() }
   }
 
-  /// `06:30 – 16:55, Weekdays`.
-  private var regularHoursText: String {
-    let schedule = model.settings.schedule
-    let hours = "\(formatter.time(schedule.hours.start)) – \(formatter.time(schedule.hours.cutoff))"
-    return "\(hours), \(formatter.workdaysSummary(schedule.workdays))"
+  private var regularText: String {
+    guard let regular = model.regularSessionsForAdjustableDay else {
+      return
+        "Today isn't a workday in your regular schedule. Choose Different hours to work anyway."
+    }
+    return "Today follows your regular schedule: \(formatter.sessionsSummary(regular))."
   }
 
   private var hasChanges: Bool {
     switch choice {
     case .regular: model.adjustableChange != nil
-    case .different: model.adjustableChange != .hours(hours)
+    case .different: model.adjustableChange != .sessions(sessions)
     case .dayOff: model.adjustableChange != .dayOff
     }
   }
 
-  /// Resets the draft to the saved change for the adjustable shift.
+  /// Today's regular sessions, or the first plan's on a day off, as a starting draft.
+  private static func regularOrDefault(_ model: TimerModel) -> WorkSessions {
+    model.regularSessionsForAdjustableDay ?? model.settings.schedule.plans[0].sessions
+  }
+
+  /// Resets the draft to the saved change for the adjustable day.
   private func load() {
     switch model.adjustableChange {
-    case .hours(let custom):
+    case .sessions(let custom):
       choice = .different
-      hours = custom
+      sessions = custom
     case .dayOff:
       choice = .dayOff
-      hours = model.settings.schedule.hours
+      sessions = Self.regularOrDefault(model)
     case nil:
       choice = .regular
-      hours = model.settings.schedule.hours
+      sessions = Self.regularOrDefault(model)
     }
   }
 
   private func apply() {
     switch choice {
     case .regular: model.updateOverride(nil)
-    case .different: model.applyToday(.hours(hours))
+    case .different: model.applyToday(.sessions(sessions))
     case .dayOff: model.applyToday(.dayOff)
     }
   }

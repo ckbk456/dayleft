@@ -43,7 +43,9 @@ struct TimeOfDayTests {
     #expect(throws: ScheduleError.noWorkdays) {
       try Schedule(hours: hours((9, 0), (18, 0)), workdays: [])
     }
-    #expect(Schedule.standard == schedule((9, 0), (18, 0)))
+    #expect(Schedule.standard.plans.count == 1)
+    #expect(Schedule.standard.workdays == Weekday.workweek)
+    #expect(Schedule.standard.sessions(on: .monday) == WorkSessions(hours((9, 0), (18, 0))))
   }
 
   @Test func codableRoundTripsAndRevalidates() throws {
@@ -61,7 +63,15 @@ struct TimeOfDayTests {
     }
     #expect(throws: ScheduleError.noWorkdays) {
       try JSONDecoder().decode(
-        Schedule.self, from: Data(#"{"hours":{"start":540,"cutoff":1080},"workdays":[]}"#.utf8))
+        Schedule.self,
+        from: Data(
+          #"{"plans":[{"id":"D4E7C3A0-5B1F-4C1E-9E0A-000000000009","name":"x","days":[],"sessions":[{"start":540,"cutoff":1080}]}]}"#
+            .utf8))
+    }
+    #expect(throws: ScheduleError.sessionsOverlap) {
+      try JSONDecoder().decode(
+        WorkSessions.self,
+        from: Data(#"[{"start":540,"cutoff":1080},{"start":600,"cutoff":700}]"#.utf8))
     }
   }
 }

@@ -2,17 +2,19 @@ import DayleftCore
 import DayleftPresentation
 import SwiftUI
 
-/// A 24-hour dial for choosing a shift's start and cutoff. Midnight is at the top.
+/// A 24-hour dial for a day's work sessions. Midnight is at the top.
 ///
-/// The chosen times are the large labels above the dial, each marked with its handle's icon; the
-/// shift length is secondary text below it, so nothing big changes except the time being moved.
-/// Drag anywhere to move the nearest handle, focus a handle and use the arrow keys (Shift for an
-/// hour), adjust handles with VoiceOver, or click a time to type it exactly.
+/// Every session is an arc; the selected one is bright and has the handles. Its start and cutoff
+/// are the large labels above the dial, each marked with its handle's icon, and the lengths are
+/// secondary text below, so nothing big changes except the time being moved. Drag near any
+/// handle to select that session and move it, click an arc to select it, focus a handle and use
+/// the arrow keys (Shift for an hour), adjust handles with VoiceOver, or click a time to type it.
 struct DayDial: View {
-  @Binding var hours: ShiftHours
-  /// Current time of day, drawn as a marker; the part of the shift before it is shown elapsed.
+  @Binding var sessions: WorkSessions
+  @Binding var selection: Int
+  /// Current time of day, drawn as a marker outside the ring.
   var now: TimeOfDay?
-  /// Optional message under the dial, e.g. that a change ends today's shift now.
+  /// Optional message under the dial, e.g. that a change ends today's work now.
   var note: String?
   let formatter: DayleftFormatter
 
@@ -22,6 +24,10 @@ struct DayDial: View {
 
   private let ringWidth: CGFloat = 18
   private let handleSize: CGFloat = 28
+  /// A drag starting this close to a handle (in degrees) grabs it rather than selecting an arc.
+  private let grabDegrees = 9.0
+
+  private var selected: ShiftHours { sessions.all[min(selection, sessions.count - 1)] }
 
   var body: some View {
     VStack(spacing: 16) {
@@ -55,8 +61,7 @@ struct DayDial: View {
       }
       .aspectRatio(1, contentMode: .fit)
       .accessibilityElement(children: .contain)
-      .accessibilityLabel(
-        "Work hours dial, \(formatter.spokenDuration(minutes: hours.durationMinutes))")
+      .accessibilityLabel(dialLabel)
 
       Text(lengthText)
         .font(.callout)
@@ -73,16 +78,30 @@ struct DayDial: View {
     }
   }
 
-  /// `8h 0m shift` or `8h 0m shift, ends the next day`.
+  private var sessionName: String {
+    sessions.count == 1 ? "Shift" : "Session \(min(selection, sessions.count - 1) + 1)"
+  }
+
+  /// `8h 0m shift`, or `Session 2: 4h 0m · 11h 0m of work in 3 sessions`.
   private var lengthText: String {
-    let length = "\(formatter.duration(minutes: hours.durationMinutes)) shift"
-    return hours.crossesMidnight ? "\(length), ends the next day" : length
+    let length = formatter.duration(minutes: selected.durationMinutes)
+    let nextDay = selected.crossesMidnight ? ", ends the next day" : ""
+    if sessions.count == 1 { return "\(length) shift\(nextDay)" }
+    let total = formatter.duration(minutes: sessions.totalMinutes)
+    return "\(sessionName): \(length)\(nextDay) · \(total) of work in \(sessions.count) sessions"
+  }
+
+  private var dialLabel: String {
+    let total = formatter.spokenDuration(minutes: sessions.totalMinutes)
+    return sessions.count == 1
+      ? "Work hours dial, \(total)"
+      : "Work hours dial, \(sessions.count) sessions, \(total), editing \(sessionName)"
   }
 
   // MARK: Chosen times
 
-  /// The large time for one handle; it highlights while that handle moves and opens a field to
-  /// type an exact time when clicked.
+  /// The large time for one handle of the selected session; it highlights while that handle
+  /// moves and opens a field to type an exact time when clicked.
   private func endpoint(_ handle: DialGeometry.Handle) -> some View {
     let active = dragging == handle || focusedHandle == handle || typing == handle
     let alignment: HorizontalAlignment = handle == .start ? .leading : .trailing
@@ -111,7 +130,7 @@ struct DayDial: View {
       }
     }
     .accessibilityElement(children: .combine)
-    .accessibilityLabel("\(title(handle)) \(formatter.time(time(handle)))")
+    .accessibilityLabel("\(sessionName) \(title(handle)) \(formatter.time(time(handle)))")
     .accessibilityHint("Activate to type a time")
   }
 
@@ -124,7 +143,7 @@ struct DayDial: View {
   }
 
   private func time(_ handle: DialGeometry.Handle) -> TimeOfDay {
-    handle == .start ? hours.start : hours.cutoff
+    handle == .start ? selected.start : selected.cutoff
   }
 
   private func typingBinding(_ handle: DialGeometry.Handle) -> Binding<Bool> {
@@ -134,24 +153,18 @@ struct DayDial: View {
   // MARK: Drawing
 
   private func ring(center: CGPoint, radius: CGFloat) -> some View {
-    let arc = DialGeometry.arc(for: hours)
-    let elapsed = elapsedSweep
-    return ZStack {
+    ZStack {
       Circle()
         .stroke(.quaternary, lineWidth: ringWidth)
         .frame(width: radius * 2, height: radius * 2)
         .position(center)
-      // Like the panel's bar: elapsed work is solid, the rest of the shift is lighter.
-      ArcShape(startDegrees: arc.start, sweepDegrees: arc.sweep)
-        .stroke(
-          Color.orange.opacity(elapsed > 0 ? 0.45 : 1),
-          style: StrokeStyle(lineWidth: ringWidth, lineCap: .round)
-        )
-        .frame(width: radius * 2, height: radius * 2)
-        .position(center)
-      if elapsed > 0 {
-        ArcShape(startDegrees: arc.start, sweepDegrees: elapsed)
-          .stroke(Color.orange, style: StrokeStyle(lineWidth: ringWidth, lineCap: .round))
+      ForEach(Array(sessions.all.enumerated()), id: \.offset) { index, session in
+        let arc = DialGeometry.arc(for: session)
+        ArcShape(startDegrees: arc.start, sweepDegrees: arc.sweep)
+          .stroke(
+            Color.orange.opacity(index == selection ? 1 : 0.38),
+            style: StrokeStyle(lineWidth: ringWidth, lineCap: .round)
+          )
           .frame(width: radius * 2, height: radius * 2)
           .position(center)
       }
@@ -195,7 +208,7 @@ struct DayDial: View {
 
   private func handle(_ handle: DialGeometry.Handle, center: CGPoint, radius: CGFloat) -> some View
   {
-    let time = handle == .start ? hours.start : hours.cutoff
+    let time = time(handle)
     let focused = focusedHandle == handle
     let active = dragging == handle || focused
     return Circle()
@@ -227,7 +240,7 @@ struct DayDial: View {
         return .handled
       }
       .accessibilityElement()
-      .accessibilityLabel(handle == .start ? "Start" : "Cutoff")
+      .accessibilityLabel("\(sessionName) \(title(handle))")
       .accessibilityValue(formatter.time(time))
       .accessibilityAdjustableAction { direction in
         switch direction {
@@ -245,45 +258,51 @@ struct DayDial: View {
       .onChanged { value in
         let angle = DialGeometry.angle(
           dx: value.location.x - center.x, dy: value.location.y - center.y)
-        let handle =
-          dragging
-          ?? DialGeometry.nearestHandle(
-            to: DialGeometry.angle(
-              dx: value.startLocation.x - center.x, dy: value.startLocation.y - center.y),
-            hours: hours)
-        dragging = handle
-        focusedHandle = handle
-        hours = DialGeometry.moving(handle, of: hours, to: DialGeometry.time(atAngle: angle))
+        if dragging == nil {
+          let startAngle = DialGeometry.angle(
+            dx: value.startLocation.x - center.x, dy: value.startLocation.y - center.y)
+          let nearest = DialGeometry.nearestHandle(to: startAngle, in: sessions)
+          let nearestTime =
+            nearest.handle == .start
+            ? sessions.all[nearest.index].start : sessions.all[nearest.index].cutoff
+          let distance = abs(DialGeometry.angle(for: nearestTime) - startAngle)
+          let grabbed = min(distance, 360 - distance) <= grabDegrees
+          // Clicking an arc away from its handles only selects that session.
+          if !grabbed, let tapped = DialGeometry.session(at: startAngle, in: sessions) {
+            selection = tapped
+            return
+          }
+          selection = nearest.index
+          dragging = nearest.handle
+          focusedHandle = nearest.handle
+        }
+        guard let handle = dragging else { return }
+        move(handle, to: DialGeometry.time(atAngle: angle))
       }
       .onEnded { _ in dragging = nil }
   }
 
+  private func move(_ handle: DialGeometry.Handle, to time: TimeOfDay) {
+    let result = DialGeometry.moving(handle, ofSession: selection, in: sessions, to: time)
+    sessions = result.sessions
+    selection = result.index
+  }
+
   private func nudge(_ handle: DialGeometry.Handle, by minutes: Int) {
-    let current = handle == .start ? hours.start : hours.cutoff
-    hours = DialGeometry.moving(handle, of: hours, to: current.adding(minutes: minutes))
+    move(handle, to: time(handle).adding(minutes: minutes))
   }
 
   private func dateBinding(for handle: DialGeometry.Handle) -> Binding<Date> {
     Binding(
       get: {
-        let time = handle == .start ? hours.start : hours.cutoff
+        let time = time(handle)
         return formatter.calendar.date(
           from: DateComponents(year: 2001, month: 1, day: 1, hour: time.hour, minute: time.minute))!
       },
       set: { date in
         let parts = formatter.calendar.dateComponents([.hour, .minute], from: date)
-        let typed = TimeOfDay(wrappingMinutes: (parts.hour ?? 0) * 60 + (parts.minute ?? 0))
-        hours = DialGeometry.moving(handle, of: hours, to: typed)
+        move(handle, to: TimeOfDay(wrappingMinutes: (parts.hour ?? 0) * 60 + (parts.minute ?? 0)))
       })
-  }
-
-  // MARK: Geometry helpers
-
-  private var elapsedSweep: Double {
-    guard let now else { return 0 }
-    let minutes = hours.start.minutes(until: now)
-    guard minutes < hours.durationMinutes else { return 0 }
-    return Double(minutes) / Double(TimeOfDay.minutesPerDay) * 360
   }
 
   private func point(atDegrees degrees: Double, center: CGPoint, radius: CGFloat) -> CGPoint {
@@ -308,35 +327,29 @@ private struct ArcShape: Shape {
 }
 
 #Preview("Day shift") {
-  @Previewable @State var hours = try! ShiftHours(
-    start: TimeOfDay(hour: 9, minute: 0), cutoff: TimeOfDay(hour: 18, minute: 0))
+  @Previewable @State var sessions = WorkSessions(
+    try! ShiftHours(start: TimeOfDay(hour: 9, minute: 0), cutoff: TimeOfDay(hour: 18, minute: 0)))
+  @Previewable @State var selection = 0
   DayDial(
-    hours: $hours, now: try! TimeOfDay(hour: 14, minute: 36), note: nil,
-    formatter: DayleftFormatter(calendar: .current, locale: .current)
+    sessions: $sessions, selection: $selection, now: try! TimeOfDay(hour: 14, minute: 36),
+    note: nil, formatter: DayleftFormatter(calendar: .current, locale: .current)
   )
-  .frame(width: 300)
+  .frame(width: 320)
   .padding()
 }
 
-#Preview("Overnight, 24-hour, dark") {
-  @Previewable @State var hours = try! ShiftHours(
-    start: TimeOfDay(hour: 22, minute: 0), cutoff: TimeOfDay(hour: 6, minute: 0))
+#Preview("Three sessions, dark") {
+  @Previewable @State var sessions = try! WorkSessions([
+    ShiftHours(start: TimeOfDay(hour: 7, minute: 0), cutoff: TimeOfDay(hour: 11, minute: 0)),
+    ShiftHours(start: TimeOfDay(hour: 13, minute: 0), cutoff: TimeOfDay(hour: 17, minute: 0)),
+    ShiftHours(start: TimeOfDay(hour: 20, minute: 0), cutoff: TimeOfDay(hour: 0, minute: 0)),
+  ])
+  @Previewable @State var selection = 1
   DayDial(
-    hours: $hours, now: nil, note: "This ends today's shift now.",
+    sessions: $sessions, selection: $selection, now: nil, note: "This ends today's work now.",
     formatter: DayleftFormatter(calendar: .current, locale: Locale(identifier: "en_GB"))
   )
-  .frame(width: 300)
+  .frame(width: 320)
   .padding()
   .preferredColorScheme(.dark)
-}
-
-#Preview("Minimum length") {
-  @Previewable @State var hours = try! ShiftHours(
-    start: TimeOfDay(hour: 23, minute: 45), cutoff: TimeOfDay(hour: 0, minute: 0))
-  DayDial(
-    hours: $hours, now: nil, note: nil,
-    formatter: DayleftFormatter(calendar: .current, locale: .current)
-  )
-  .frame(width: 300)
-  .padding()
 }

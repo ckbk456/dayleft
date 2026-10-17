@@ -4,8 +4,9 @@ A small native macOS menu bar app that reminds you how much of your chosen workd
 
 **Status: MVP candidate, pending human verification.** The menu bar shows a live countdown for
 your workday; clicking it shows a compact read-only panel. A separate settings window edits
-recurring hours on a 24-hour dial (overnight shifts included), workdays, and opt-in launch at
-login; its Today pane changes or skips only today's work, never the regular schedule.
+the regular schedule as day plans (e.g. Weekdays and Weekend), each with up to four work
+sessions on a 24-hour dial (breaks between them, overnight sessions included), and opt-in launch
+at login; its Today pane changes or skips only today's work, never the regular schedule.
 The [manual timer guide](testing/MANUAL%20TO-DO/timer.md) must pass before calling it user-ready.
 
 ![Approved menu bar direction](docs/design/approved-menu-bar.png)

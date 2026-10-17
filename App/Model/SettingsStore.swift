@@ -12,7 +12,11 @@ final class SettingsStore {
 
   init(defaults: UserDefaults = .standard) {
     self.defaults = defaults
-    document = SettingsDocument.decode(defaults.data(forKey: SettingsDocument.storageKey))
+    document = SettingsDocument.decode(
+      defaults.data(forKey: SettingsDocument.storageKey),
+      legacy: defaults.data(forKey: SettingsDocument.legacyStorageKey))
+    // Persist migrated or default settings once, so plan identities stay stable across launches.
+    if defaults.data(forKey: SettingsDocument.storageKey) == nil { save() }
   }
 
   var schedule: Schedule { document.schedule }

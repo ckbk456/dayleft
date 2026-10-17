@@ -29,3 +29,14 @@ func schedule(
 ) -> Schedule {
   try! Schedule(hours: hours(start, cutoff), workdays: workdays)
 }
+
+func sessions(_ ranges: ((Int, Int), (Int, Int))...) -> WorkSessions {
+  try! WorkSessions(ranges.map { hours($0.0, $0.1) })
+}
+
+extension ScheduleResolver {
+  /// The only window on a single-session day.
+  func window(on day: LocalDay, schedule: Schedule, override: DayOverride?) -> WorkWindow? {
+    windows(on: day, schedule: schedule, override: override).first
+  }
+}
