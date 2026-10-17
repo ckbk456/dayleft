@@ -52,6 +52,8 @@ Use System Settings → General → Date & Time to change the clock, time zone, 
       panel says BREAK; the bar shows gaps; after midnight it shows `Done`/`Off` as expected.
 - [ ] Day plans: add a Weekend plan, move Friday into it from Weekdays, remove a plan (its days
       become days off), and leave Wednesday in no plan; the panel and states follow.
+- [ ] Under Day plans, the selected plan's Name, Days, and Sessions each have their own heading;
+      Add Day Plan selects the new plan and puts the cursor in its name field.
 - [ ] Today → Different hours edits several sessions for today only.
 
 ## MVP acceptance criteria — pending
