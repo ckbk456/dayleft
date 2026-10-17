@@ -94,7 +94,7 @@ require_swift_format() {
 
 lint() {
   require_swift_format
-  bash -n scripts/dev.sh
+  bash -n scripts/dev.sh scripts/stamp_build_info.sh
   python3 scripts/check_structure.py
   "$DAYLEFT_SWIFT_FORMAT" lint --strict --recursive Package.swift App Sources Tests
 }

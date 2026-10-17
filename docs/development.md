@@ -48,11 +48,27 @@ removes it on exit (`open` releases it before launching Xcode). Do not bypass it
 `make -j`; do not remove a live lock. A blocked command reports whether the recorded PID has
 exited; confirm that before removing a stale lock. Shell-owned commands are kept until completion; no watchers are used.
 
+## Versioning
+
+Dayleft uses [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html).
+`MARKETING_VERSION` in `project.yml` is the single source of the version; `make lint` rejects
+anything other than `MAJOR.MINOR.PATCH`. Before 1.0.0, a pull request that changes the app bumps
+MINOR for new or changed behavior and PATCH for fixes, and increments `CURRENT_PROJECT_VERSION`
+(the build number) by one. Documentation- or tooling-only changes keep the version. 1.0.0 is
+reserved for the first user-ready release.
+
+Every app build runs `scripts/stamp_build_info.sh`, which writes the short commit (`.dirty` when
+tracked or untracked files differ from it) and the UTC build time into the built Info.plist. The
+panel footer and Settings → About show the result as SemVer build metadata, for example
+`0.2.0+abc1234`; an orange `.dirty` suffix means the commit alone does not identify the build.
+Builds without Git metadata show only the version. To check a copy on disk, run
+`defaults read /path/to/Dayleft.app/Contents/Info DayleftCommit`.
+
 ## Layout
 
 `App/` is the native UI and its models (timer refresh, settings persistence, login item).
 `Sources/DayleftCore` is the dependency-free timing model; `Sources/DayleftPresentation` turns
-day states into menu bar, panel, and VoiceOver text and owns the stored settings format.
+day states into menu bar, panel, and VoiceOver text, owns the stored settings format, and reads the build identity.
 `Tests/DayleftCoreTests` owns deterministic behavior checks. The Xcode app links that same
 local package. There is no remote package resolution, database, migration, service, listener,
 provider configuration, signing secret, or environment file. Settings live in local defaults.

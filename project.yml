@@ -9,8 +9,9 @@ settings:
     SWIFT_VERSION: '6.0'
     SWIFT_STRICT_CONCURRENCY: complete
     SWIFT_TREAT_WARNINGS_AS_ERRORS: YES
-    MARKETING_VERSION: 0.1.0
-    CURRENT_PROJECT_VERSION: 1
+    # Semantic version of the app; see docs/development.md#versioning before changing it.
+    MARKETING_VERSION: 0.2.0
+    CURRENT_PROJECT_VERSION: 2
 packages:
   DayleftCore:
     path: .
@@ -31,6 +32,16 @@ targets:
         CODE_SIGN_ENTITLEMENTS: App/Dayleft.entitlements
         ENABLE_APP_SANDBOX: YES
         ENABLE_HARDENED_RUNTIME: YES
+        # The stamp phase reads Git metadata, which a sandboxed script phase cannot see.
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+    postBuildScripts:
+      - name: Stamp build identity
+        script: bash "$SRCROOT/scripts/stamp_build_info.sh"
+        # Declaring the processed Info.plist as input orders this phase after Xcode writes it.
+        inputFiles:
+          - $(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
     dependencies:
       - package: DayleftCore
         product: DayleftCore

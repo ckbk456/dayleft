@@ -23,6 +23,13 @@ if info.get("LSUIElement") is not True:
     errors.append("Menu-bar app must set LSUIElement=true")
 if entitlements != {"com.apple.security.app-sandbox": True}:
     errors.append("Scaffold must remain sandboxed without provider entitlements")
+project = (root / "project.yml").read_text()
+version = re.search(r"^\s*MARKETING_VERSION:\s*(\S+)\s*$", project, re.MULTILINE)
+build = re.search(r"^\s*CURRENT_PROJECT_VERSION:\s*(\S+)\s*$", project, re.MULTILINE)
+if not version or not re.fullmatch(r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)", version[1]):
+    errors.append("project.yml MARKETING_VERSION must be MAJOR.MINOR.PATCH")
+if not build or not re.fullmatch(r"[1-9]\d*", build[1]):
+    errors.append("project.yml CURRENT_PROJECT_VERSION must be a positive integer")
 for path in [root / name for name in required if name.endswith(".md")]:
     if not path.exists():
         continue

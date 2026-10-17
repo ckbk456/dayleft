@@ -12,6 +12,7 @@ struct SettingsView: View {
   }
 
   private var schedule: Schedule { model.settings.schedule }
+  private var build: BuildInfo { .current }
 
   var body: some View {
     Form {
@@ -54,6 +55,23 @@ struct SettingsView: View {
           Text(error)
             .font(.caption)
             .foregroundStyle(.red)
+        }
+      }
+
+      Section("About") {
+        LabeledContent("Version") {
+          Text(build.versionText)
+            .monospacedDigit()
+            .textSelection(.enabled)
+        }
+        LabeledContent("Build", value: build.build)
+        if let builtAt = build.builtAt {
+          LabeledContent("Built", value: builtAt.formatted(date: .abbreviated, time: .shortened))
+        }
+        if build.isDirty {
+          Text("Built with uncommitted changes, so the commit alone does not identify it.")
+            .font(.caption)
+            .foregroundStyle(.orange)
         }
       }
     }

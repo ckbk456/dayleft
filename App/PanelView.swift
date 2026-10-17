@@ -107,6 +107,15 @@ struct PanelView: View {
         }
         .keyboardShortcut(",")
         Spacer()
+        Text(BuildInfo.current.versionText)
+          .font(.caption2)
+          .foregroundStyle(
+            BuildInfo.current.isDirty ? AnyShapeStyle(.orange) : AnyShapeStyle(.tertiary)
+          )
+          .monospacedDigit()
+          .textSelection(.enabled)
+          .help("Dayleft version and source commit")
+        Spacer()
         Button("Quit") { NSApplication.shared.terminate(nil) }
           .keyboardShortcut("q")
       }

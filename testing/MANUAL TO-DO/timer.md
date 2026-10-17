@@ -6,6 +6,8 @@ Use System Settings → General → Date & Time to change the clock, time zone, 
 ## Run setup — pending
 
 - [ ] Build and run Dayleft from Xcode on My Mac (or the locally signed build); no Dock icon.
+- [ ] The panel footer and Settings → About show `version+commit` matching `git rev-parse
+      --short HEAD`, with `.dirty` (orange) only when the build had uncommitted changes.
 - [ ] The menu bar shows **both** the hourglass and the text. If only the icon appears, record
       it: the label interpolates the image into a single `Text` to avoid that.
 
