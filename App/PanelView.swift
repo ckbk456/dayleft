@@ -17,17 +17,39 @@ struct PanelView: View {
   }
 
   var body: some View {
+    if #available(macOS 26, *) {
+      glassBody
+    } else {
+      classicBody
+    }
+  }
+
+  /// macOS 26 and later: the panel is already glass, so the rows and buttons float on it as
+  /// interactive glass instead of being separated by dividers.
+  @available(macOS 26, *)
+  private var glassBody: some View {
+    VStack(alignment: .leading, spacing: 14) {
+      countdown
+        .padding(.horizontal, 6)
+        .padding(.top, 6)
+      GlassEffectContainer(spacing: 6) {
+        VStack(spacing: 6) {
+          rows
+        }
+      }
+      footer
+    }
+    .padding(14)
+    .frame(width: 300)
+  }
+
+  private var classicBody: some View {
     VStack(alignment: .leading, spacing: 0) {
       countdown
         .padding(20)
       Divider()
       VStack(spacing: 2) {
-        PanelRow(title: "Today", value: todayText, highlighted: model.adjustableChange != nil) {
-          open(.today)
-        }
-        PanelRow(title: "Regular schedule", value: regularText) {
-          open(.schedule)
-        }
+        rows
       }
       .padding(6)
       Divider()
@@ -36,6 +58,15 @@ struct PanelView: View {
         .padding(.vertical, 6)
     }
     .frame(width: 300)
+  }
+
+  @ViewBuilder private var rows: some View {
+    PanelRow(title: "Today", value: todayText, highlighted: model.adjustableChange != nil) {
+      open(.today)
+    }
+    PanelRow(title: "Regular schedule", value: regularText) {
+      open(.schedule)
+    }
   }
 
   private var countdown: some View {
@@ -108,7 +139,7 @@ struct PanelView: View {
       .accessibilityLabel("Quit Dayleft")
       .keyboardShortcut("q")
     }
-    .buttonStyle(PanelIconButtonStyle())
+    .modifier(PanelIconButtons())
   }
 
   /// `06:30 – 16:55, Weekdays` for one plan, otherwise the number of day plans.
@@ -163,16 +194,50 @@ private struct PanelRow: View {
       }
       .padding(.horizontal, 10)
       .padding(.vertical, 7)
-      .background(
-        RoundedRectangle(cornerRadius: 6)
-          .fill(hovering ? AnyShapeStyle(.quaternary) : AnyShapeStyle(.clear))
-      )
+      .modifier(PanelRowSurface(hovering: hovering, highlighted: highlighted))
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
     .onHover { hovering = $0 }
     .accessibilityLabel("\(title), \(value)")
     .accessibilityHint("Opens Dayleft settings")
+  }
+}
+
+/// A row's background: interactive glass on macOS 26 and later (tinted while today is changed),
+/// otherwise a fill that appears on hover.
+private struct PanelRowSurface: ViewModifier {
+  let hovering: Bool
+  let highlighted: Bool
+
+  func body(content: Content) -> some View {
+    if #available(macOS 26, *) {
+      content
+        .padding(.vertical, 3)
+        .glassEffect(
+          .regular.tint(highlighted ? .orange.opacity(0.35) : nil).interactive(),
+          in: RoundedRectangle(cornerRadius: 12))
+    } else {
+      content
+        .background(
+          RoundedRectangle(cornerRadius: 6)
+            .fill(hovering ? AnyShapeStyle(.quaternary) : AnyShapeStyle(.clear))
+        )
+    }
+  }
+}
+
+/// Footer icon buttons: round glass buttons on macOS 26 and later, borderless before.
+private struct PanelIconButtons: ViewModifier {
+  func body(content: Content) -> some View {
+    if #available(macOS 26, *) {
+      content
+        .buttonStyle(.glass)
+        .buttonBorderShape(.circle)
+        .controlSize(.large)
+    } else {
+      content.buttonStyle(PanelIconButtonStyle())
+    }
   }
 }
 

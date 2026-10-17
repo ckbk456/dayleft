@@ -44,6 +44,7 @@ struct AboutPane: View {
             NSPasteboard.general.clearContents()
             NSPasteboard.general.setString(build.versionText, forType: .string)
           }
+          .dayleftGlassButtonStyle()
         }
       }
     }

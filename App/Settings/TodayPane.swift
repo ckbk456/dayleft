@@ -86,6 +86,7 @@ struct TodayPane: View {
             Spacer()
             Button("Edit Regular Schedule…") { navigation.pane = .schedule }
               .controlSize(.small)
+              .dayleftGlassButtonStyle()
           }
         }
 
@@ -102,9 +103,11 @@ struct TodayPane: View {
         Spacer()
         Button("Revert", action: load)
           .disabled(!hasChanges)
+          .dayleftGlassButtonStyle()
         Button("Apply", action: apply)
           .keyboardShortcut(.defaultAction)
           .disabled(!hasChanges)
+          .dayleftGlassButtonStyle(prominent: true)
       }
       .padding(12)
     }

@@ -35,8 +35,11 @@ Use System Settings → General → Date & Time to change the clock, time zone, 
       today-only changes. On a non-workday, Today says so instead of quoting regular hours.
 - [ ] Today: Revert and Apply stay disabled until the draft differs; reopening the window drops
       an unapplied draft; the dial is not cramped and its labels do not overlap.
-- [ ] The sidebar cannot be dragged wider, narrower, or collapsed. With Appearance → Sidebar
-      icon size Small, Medium, and Large, "Regular Schedule" is never truncated or clipped.
+- [ ] The window switches panes with a tab bar across the top (Today, Regular Schedule,
+      General, About); panel rows and "Edit Regular Schedule…" select the matching tab.
+- [ ] macOS 26: the tab bar, panel rows, panel footer buttons, selected plan/session rows, and
+      buttons are Liquid Glass and stay readable in light and dark appearances.
+- [ ] macOS 14 or 15: the same screens use standard tabs, materials, and bordered buttons.
 
 ## Sessions and day plans — pending
 
@@ -49,6 +52,8 @@ Use System Settings → General → Date & Time to change the clock, time zone, 
       panel says BREAK; the bar shows gaps; after midnight it shows `Done`/`Off` as expected.
 - [ ] Day plans: add a Weekend plan, move Friday into it from Weekdays, remove a plan (its days
       become days off), and leave Wednesday in no plan; the panel and states follow.
+- [ ] Under Day plans, the selected plan's Name, Days, and Sessions each have their own heading;
+      Add Day Plan selects the new plan and puts the cursor in its name field.
 - [ ] Today → Different hours edits several sessions for today only.
 
 ## MVP acceptance criteria — pending

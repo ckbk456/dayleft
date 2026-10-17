@@ -8,6 +8,7 @@ struct SchedulePane: View {
   let model: TimerModel
 
   @State private var selectedPlanID: DayPlan.ID?
+  @FocusState private var editingName: Bool
 
   private var formatter: DayleftFormatter {
     DayleftFormatter(calendar: .autoupdatingCurrent, locale: .autoupdatingCurrent)
@@ -46,15 +47,25 @@ struct SchedulePane: View {
           .disabled((try? Schedule(plans: schedule.plans.filter { $0.id != plan.id })) == nil)
           .help("Remove the selected day plan; its days become days off")
           Spacer()
-          Text("Days in no plan are days off.")
+          Text("Select a plan to edit its name, days, and sessions below.")
             .font(.caption)
             .foregroundStyle(.secondary)
         }
         .controlSize(.small)
+        .dayleftGlassButtonStyle()
       }
 
       Section {
         TextField("Name", text: nameBinding, prompt: Text("e.g. Weekend"))
+          .labelsHidden()
+          .textFieldStyle(.roundedBorder)
+          .font(.title3)
+          .focused($editingName)
+      } header: {
+        Text("Name")
+      }
+
+      Section {
         HStack(spacing: 6) {
           ForEach(formatter.orderedWeekdays, id: \.self) { day in
             Toggle(formatter.shortName(day), isOn: dayBinding(day))
@@ -66,18 +77,18 @@ struct SchedulePane: View {
       } header: {
         Text("Days")
       } footer: {
-        Text("Turning on a day that belongs to another plan moves it here.")
-          .font(.caption)
-          .foregroundStyle(.secondary)
+        Text(
+          "Days in no plan are days off. Turning on a day that belongs to another plan moves it here."
+        )
+        .font(.caption)
+        .foregroundStyle(.secondary)
       }
 
-      SessionsEditor(sessions: sessionsBinding, title: "Sessions in \(planName)")
+      SessionsEditor(sessions: sessionsBinding, title: "Sessions")
         .id(plan.id)
     }
     .formStyle(.grouped)
   }
-
-  private var planName: String { plan.name.isEmpty ? "this plan" : plan.name }
 
   private func dayHelp(_ day: Weekday) -> String {
     guard let owner = schedule.plan(on: day), owner.id != plan.id else { return "" }
@@ -126,6 +137,7 @@ struct SchedulePane: View {
     if let updated = try? Schedule(plans: schedule.plans + [plan]) {
       model.updateSchedule(updated)
       selectedPlanID = plan.id
+      editingName = true
     }
   }
 
@@ -165,10 +177,7 @@ private struct PlanRow: View {
       }
       .padding(.vertical, 4)
       .padding(.horizontal, 6)
-      .background(
-        RoundedRectangle(cornerRadius: 6)
-          .fill(isSelected ? AnyShapeStyle(Color.orange.opacity(0.16)) : AnyShapeStyle(.clear))
-      )
+      .dayleftSelection(isSelected)
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
