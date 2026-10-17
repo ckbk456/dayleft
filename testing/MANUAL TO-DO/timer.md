@@ -17,7 +17,10 @@ Use System Settings → General → Date & Time to change the clock, time zone, 
 - [ ] Dragging snaps to 5 minutes, moves the nearest handle, and stops 15 minutes from the other
       handle without jumping across it; the arc crosses midnight correctly.
 - [ ] Focused handles move with arrow keys (5 minutes) and Shift-arrows (1 hour).
-- [ ] VoiceOver reads "Start"/"Cutoff" with the time and adjusts them; the time fields stay in sync.
+- [ ] The large Start and Cutoff times above the dial follow the handles, and the label of the
+      handle being moved turns orange; the shift length below the dial is the only other change.
+- [ ] Clicking a large time opens a field that types an exact time and moves its handle.
+- [ ] VoiceOver reads "Start"/"Cutoff" with the time and adjusts them.
 - [ ] Hour marks follow 12/24-hour settings; light and dark appearances are readable.
 
 ## Settings window — pending

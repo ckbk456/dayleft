@@ -17,7 +17,7 @@ struct SettingsWindow: View {
       detail
         .navigationTitle(navigation.pane.title)
     }
-    .frame(width: 660, height: 560)
+    .frame(width: 680, height: 680)
   }
 
   @ViewBuilder private var detail: some View {

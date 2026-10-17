@@ -4,8 +4,10 @@ import SwiftUI
 
 /// A 24-hour dial for choosing a shift's start and cutoff. Midnight is at the top.
 ///
+/// The chosen times are the large labels above the dial, each marked with its handle's icon; the
+/// shift length is secondary text below it, so nothing big changes except the time being moved.
 /// Drag anywhere to move the nearest handle, focus a handle and use the arrow keys (Shift for an
-/// hour), adjust handles with VoiceOver, or type exact times in the fields below the dial.
+/// hour), adjust handles with VoiceOver, or click a time to type it exactly.
 struct DayDial: View {
   @Binding var hours: ShiftHours
   /// Current time of day, drawn as a marker; the part of the shift before it is shown elapsed.
@@ -15,17 +17,30 @@ struct DayDial: View {
   let formatter: DayleftFormatter
 
   @State private var dragging: DialGeometry.Handle?
+  @State private var typing: DialGeometry.Handle?
   @FocusState private var focusedHandle: DialGeometry.Handle?
 
-  private let ringWidth: CGFloat = 14
-  private let handleSize: CGFloat = 22
+  private let ringWidth: CGFloat = 18
+  private let handleSize: CGFloat = 28
 
   var body: some View {
-    VStack(spacing: 14) {
+    VStack(spacing: 16) {
+      HStack(alignment: .bottom) {
+        endpoint(.start)
+        Spacer()
+        Image(systemName: "arrow.right")
+          .font(.title3)
+          .foregroundStyle(.tertiary)
+          .padding(.bottom, 8)
+          .accessibilityHidden(true)
+        Spacer()
+        endpoint(.cutoff)
+      }
+
       GeometryReader { proxy in
         let side = min(proxy.size.width, proxy.size.height)
         let center = CGPoint(x: proxy.size.width / 2, y: proxy.size.height / 2)
-        let radius = side / 2 - handleSize
+        let radius = side / 2 - handleSize / 2 - 6
         ZStack {
           ring(center: center, radius: radius)
           marks(center: center, radius: radius)
@@ -34,16 +49,6 @@ struct DayDial: View {
           }
           handle(.start, center: center, radius: radius)
           handle(.cutoff, center: center, radius: radius)
-          VStack(spacing: 2) {
-            Text(formatter.duration(minutes: hours.durationMinutes))
-              .font(.title2.weight(.semibold))
-              .monospacedDigit()
-            Text(hours.crossesMidnight ? "ends next day" : "same day")
-              .font(.caption)
-              .foregroundStyle(.secondary)
-          }
-          .position(center)
-          .accessibilityHidden(true)
         }
         .contentShape(Rectangle())
         .gesture(dragGesture(center: center))
@@ -53,11 +58,11 @@ struct DayDial: View {
       .accessibilityLabel(
         "Work hours dial, \(formatter.spokenDuration(minutes: hours.durationMinutes))")
 
-      HStack {
-        timeField("Start", handle: .start)
-        Spacer()
-        timeField("Cutoff", handle: .cutoff)
-      }
+      Text(lengthText)
+        .font(.callout)
+        .foregroundStyle(.secondary)
+        .monospacedDigit()
+        .accessibilityHidden(true)
 
       if let note {
         Label(note, systemImage: "exclamationmark.circle")
@@ -66,6 +71,64 @@ struct DayDial: View {
           .frame(maxWidth: .infinity, alignment: .leading)
       }
     }
+  }
+
+  /// `8h 0m shift` or `8h 0m shift, ends the next day`.
+  private var lengthText: String {
+    let length = "\(formatter.duration(minutes: hours.durationMinutes)) shift"
+    return hours.crossesMidnight ? "\(length), ends the next day" : length
+  }
+
+  // MARK: Chosen times
+
+  /// The large time for one handle; it highlights while that handle moves and opens a field to
+  /// type an exact time when clicked.
+  private func endpoint(_ handle: DialGeometry.Handle) -> some View {
+    let active = dragging == handle || focusedHandle == handle || typing == handle
+    let alignment: HorizontalAlignment = handle == .start ? .leading : .trailing
+    return VStack(alignment: alignment, spacing: 2) {
+      Label(title(handle), systemImage: symbol(handle))
+        .font(.caption.weight(.semibold))
+        .textCase(.uppercase)
+        .foregroundStyle(active ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
+      Button {
+        typing = handle
+      } label: {
+        Text(formatter.time(time(handle)))
+          .font(.system(size: 30, weight: .semibold, design: .rounded))
+          .monospacedDigit()
+          .foregroundStyle(.primary)
+          .contentTransition(.numericText())
+      }
+      .buttonStyle(.plain)
+      .help("Click to type an exact \(title(handle).lowercased()) time")
+      .popover(isPresented: typingBinding(handle), arrowEdge: .bottom) {
+        DatePicker(
+          title(handle), selection: dateBinding(for: handle), displayedComponents: .hourAndMinute
+        )
+        .datePickerStyle(.field)
+        .padding(12)
+      }
+    }
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel("\(title(handle)) \(formatter.time(time(handle)))")
+    .accessibilityHint("Activate to type a time")
+  }
+
+  private func title(_ handle: DialGeometry.Handle) -> String {
+    handle == .start ? "Start" : "Cutoff"
+  }
+
+  private func symbol(_ handle: DialGeometry.Handle) -> String {
+    handle == .start ? "play.fill" : "stop.fill"
+  }
+
+  private func time(_ handle: DialGeometry.Handle) -> TimeOfDay {
+    handle == .start ? hours.start : hours.cutoff
+  }
+
+  private func typingBinding(_ handle: DialGeometry.Handle) -> Binding<Bool> {
+    Binding(get: { typing == handle }, set: { if !$0, typing == handle { typing = nil } })
   }
 
   // MARK: Drawing
@@ -103,16 +166,16 @@ struct DayDial: View {
         Capsule()
           .fill(major ? AnyShapeStyle(.secondary) : AnyShapeStyle(.tertiary))
           .frame(width: major ? 2 : 1, height: major ? 8 : 5)
-          .offset(y: -(radius - ringWidth / 2 - 10))
+          .offset(y: -(radius - ringWidth / 2 - 9))
           .rotationEffect(.degrees(Double(hour) * 15))
           .position(center)
       }
-      ForEach([0, 6, 12, 18], id: \.self) { hour in
+      ForEach(Array(stride(from: 0, to: 24, by: 3)), id: \.self) { hour in
         Text(formatter.hourLabel(hour))
-          .font(.caption2)
-          .foregroundStyle(.secondary)
+          .font(hour % 6 == 0 ? .caption.weight(.medium) : .caption2)
+          .foregroundStyle(hour % 6 == 0 ? AnyShapeStyle(.secondary) : AnyShapeStyle(.tertiary))
           .monospacedDigit()
-          .position(point(atDegrees: Double(hour) * 15, center: center, radius: radius - 34))
+          .position(point(atDegrees: Double(hour) * 15, center: center, radius: radius - 38))
       }
     }
     .accessibilityHidden(true)
@@ -134,14 +197,22 @@ struct DayDial: View {
   {
     let time = handle == .start ? hours.start : hours.cutoff
     let focused = focusedHandle == handle
+    let active = dragging == handle || focused
     return Circle()
       .fill(handle == .start ? Color.white : Color.orange)
-      .overlay(Circle().stroke(Color.orange, lineWidth: 3))
+      .overlay(Circle().stroke(Color.orange, lineWidth: 2.5))
+      .overlay(
+        Image(systemName: symbol(handle))
+          .font(.system(size: 10, weight: .bold))
+          .foregroundStyle(handle == .start ? Color.orange : Color.white)
+      )
+      .scaleEffect(active ? 1.12 : 1)
+      .animation(.snappy(duration: 0.15), value: active)
       .overlay(
         Circle()
           .stroke(Color.accentColor, lineWidth: 3)
           .padding(-5)
-          .opacity(focused ? 1 : 0)
+          .opacity(focused && dragging == nil ? 1 : 0)
       )
       .shadow(radius: 1.5)
       .frame(width: handleSize, height: handleSize)
@@ -165,12 +236,6 @@ struct DayDial: View {
         @unknown default: break
         }
       }
-  }
-
-  private func timeField(_ title: String, handle: DialGeometry.Handle) -> some View {
-    DatePicker(title, selection: dateBinding(for: handle), displayedComponents: .hourAndMinute)
-      .datePickerStyle(.field)
-      .fixedSize()
   }
 
   // MARK: Interaction

@@ -16,7 +16,7 @@ struct SchedulePane: View {
     Form {
       Section {
         DayDial(hours: hoursBinding, now: nil, note: nil, formatter: formatter)
-          .frame(width: 280)
+          .frame(width: 320)
           .frame(maxWidth: .infinity)
           .padding(.vertical, 8)
       } header: {

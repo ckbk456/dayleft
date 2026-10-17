@@ -58,7 +58,8 @@ applying a change for a new day replaces an older one that may still cover a run
 angles to 5-minute-snapped times, reports the arc and the nearest handle, and moves a handle
 while keeping 15 minutes from the other one. A handle approaching the other stops on the side
 it came from rather than jumping across. `App/Components/DayDial.swift` draws the dial and
-routes drags, arrow keys, VoiceOver adjustments, and typed times through these functions.
+routes drags, arrow keys, VoiceOver adjustments, and typed times through these functions. It shows
+the chosen start and cutoff as large labels above the dial and the shift length below it.
 
 ## Not yet implemented
 

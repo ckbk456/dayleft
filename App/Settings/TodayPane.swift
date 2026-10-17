@@ -61,7 +61,7 @@ struct TodayPane: View {
               note: model.endsShiftNow(hours) ? "Applying this ends today's shift now." : nil,
               formatter: formatter
             )
-            .frame(width: 280)
+            .frame(width: 320)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
           case .dayOff:
