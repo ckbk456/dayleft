@@ -14,8 +14,10 @@ Use System Settings → General → Date & Time to change the clock, time zone, 
 ## Day dial — pending
 
 - [ ] Xcode previews (`App/Components/DayDial.swift`): day shift, overnight, minimum length.
-- [ ] Dragging snaps to 5 minutes, moves the nearest handle, and stops 15 minutes from the other
-      handle without jumping across it; the arc crosses midnight correctly.
+- [ ] Dragging a handle snaps to 5 minutes and stops 15 minutes from the other handle without
+      jumping across it; the arc crosses midnight correctly.
+- [ ] Clicking or dragging the middle of the dial, its corners, or a gap between sessions changes
+      nothing; only a handle or an arc responds.
 - [ ] Focused handles move with arrow keys (5 minutes) and Shift-arrows (1 hour).
 - [ ] The large Start and Cutoff times above the dial follow the handles, and the label of the
       handle being moved turns orange; the shift length below the dial is the only other change.
@@ -39,7 +41,7 @@ Use System Settings → General → Date & Time to change the clock, time zone, 
 - [ ] Existing single-hours settings appear after updating as one plan with one session.
 - [ ] Add Session centres up to an hour in the longest break; Remove keeps at least one; four
       is the maximum. Selecting a row highlights its arc and moves the handles to it; dragging
-      near any handle selects that session; handles stop a 5-minute break from other sessions.
+      a handle or another session's arc end selects that session; handles stop a 5-minute break from other sessions.
 - [ ] A 07–11, 13–17, 20–00 day: during a session the menu bar counts down the session and the
       panel shows work left today; during a break the menu bar shows the next start and the
       panel says BREAK; the bar shows gaps; after midnight it shows `Done`/`Off` as expected.

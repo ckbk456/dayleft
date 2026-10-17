@@ -68,12 +68,13 @@ applying a change for a new day replaces an older one that may still cover a run
 ## Dial geometry
 
 `DialGeometry` places midnight at the top running clockwise (15° per hour), converts points and
-angles to 5-minute-snapped times, reports arcs, the nearest handle across sessions, and the
-session under an angle, and moves a handle while keeping 15 minutes from its own session's other
+angles to 5-minute-snapped times, reports arcs, the nearest handle across sessions, the
+session under an angle, and the handle or arc under a point (handles by distance in points,
+preferring the selected session; arcs only near the ring; elsewhere nothing), and moves a handle while keeping 15 minutes from its own session's other
 handle and a 5-minute break from neighbouring sessions. With one session, a handle approaching
 the other stops on the side it came from; with several, a target outside the allowed range stops
 at its nearer end, so a handle never jumps across another session. `App/Components/DayDial.swift` draws the dial and
-routes drags, arrow keys, VoiceOver adjustments, and typed times through these functions. It shows
+routes drags (starting only on a handle or an arc), arrow keys, VoiceOver adjustments, and typed times through these functions. It shows
 the chosen start and cutoff as large labels above the dial and the shift length below it.
 
 ## App wiring
