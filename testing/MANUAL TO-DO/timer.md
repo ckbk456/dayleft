@@ -6,8 +6,8 @@ Use System Settings → General → Date & Time to change the clock, time zone, 
 ## Run setup — pending
 
 - [ ] Build and run Dayleft from Xcode on My Mac (or the locally signed build); no Dock icon.
-- [ ] The panel footer and Settings → About show `version+commit` matching `git rev-parse
-      --short HEAD`, with `.dirty` (orange) only when the build had uncommitted changes.
+- [ ] The panel footer and the settings window's About pane show `version+commit` matching
+      `git rev-parse --short HEAD`, with `.dirty` (orange) only when the build had uncommitted changes.
 - [ ] The menu bar shows **both** the hourglass and the text. If only the icon appears, record
       it: the label interpolates the image into a single `Text` to avoid that.
 
@@ -17,15 +17,29 @@ Use System Settings → General → Date & Time to change the clock, time zone, 
 - [ ] Dragging snaps to 5 minutes, moves the nearest handle, and stops 15 minutes from the other
       handle without jumping across it; the arc crosses midnight correctly.
 - [ ] Focused handles move with arrow keys (5 minutes) and Shift-arrows (1 hour).
-- [ ] VoiceOver reads "Start"/"Cutoff" with the time and adjusts them; the time fields stay in sync.
+- [ ] The large Start and Cutoff times above the dial follow the handles, and the label of the
+      handle being moved turns orange; the shift length below the dial is the only other change.
+- [ ] Clicking a large time opens a field that types an exact time and moves its handle.
+- [ ] VoiceOver reads "Start"/"Cutoff" with the time and adjusts them.
 - [ ] Hour marks follow 12/24-hour settings; light and dark appearances are readable.
+
+## Settings window — pending
+
+- [ ] Panel rows open the Today and Regular Schedule panes; the gear button and ⌘, open the window.
+      The panel closes, and the window comes to the front over other apps.
+- [ ] A Dock icon and app menu appear only while the window is open; closing it (button or ⌘W)
+      returns Dayleft to the menu bar only. The window never opens by itself at launch.
+- [ ] Naming is consistent: "Regular schedule" for recurring hours/workdays, "Today's work" for
+      today-only changes. On a non-workday, Today says so instead of quoting regular hours.
+- [ ] Today: Revert and Apply stay disabled until the draft differs; reopening the window drops
+      an unapplied draft; the dial is not cramped and its labels do not overlap.
 
 ## MVP acceptance criteria — pending
 
 1. [ ] First launch uses Monday–Friday 09:00–18:00 and shows the correct current state.
 2. [ ] Menu bar text per state: remaining time while working, start time before work, `Done`
        after the cutoff until midnight or the next start, `Off` on a day off or non-workday.
-3. [ ] The panel shows remaining time, cutoff, the elapsed bar (labelled elapsed), and the shift
+3. [ ] The read-only panel shows remaining time, cutoff, the elapsed bar (labelled elapsed), the shift
        endpoints; compare with [the approved direction](../../docs/design/approved-menu-bar.png).
 4. [ ] Settings changes apply immediately and persist after Quit and relaunch.
 5. [ ] A today-only change or day off affects only today's shift and disappears when it ends.
