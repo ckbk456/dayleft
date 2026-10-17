@@ -2,25 +2,31 @@ import DayleftCore
 import DayleftPresentation
 import SwiftUI
 
-/// Recurring work hours, workdays, and login launch. Changes apply immediately.
-struct SettingsView: View {
+/// Recurring work hours and workdays. Changes apply immediately.
+struct SchedulePane: View {
   let model: TimerModel
-  let loginItem: LoginItem
 
   private var formatter: DayleftFormatter {
     DayleftFormatter(calendar: .autoupdatingCurrent, locale: .autoupdatingCurrent)
   }
 
   private var schedule: Schedule { model.settings.schedule }
-  private var build: BuildInfo { .current }
 
   var body: some View {
     Form {
-      Section("Work hours") {
+      Section {
         DayDial(hours: hoursBinding, now: nil, note: nil, formatter: formatter)
           .frame(width: 280)
           .frame(maxWidth: .infinity)
           .padding(.vertical, 8)
+      } header: {
+        Text("Usual hours")
+      } footer: {
+        Text(
+          "Drag either handle, or type exact times. A cutoff before the start ends the next day."
+        )
+        .font(.caption)
+        .foregroundStyle(.secondary)
       }
 
       Section {
@@ -39,45 +45,8 @@ struct SettingsView: View {
           .font(.caption)
           .foregroundStyle(.secondary)
       }
-
-      Section("General") {
-        Toggle("Launch at login", isOn: loginBinding)
-        if loginItem.status == .requiresApproval {
-          HStack {
-            Text("Approve Dayleft in Login Items to finish.")
-              .font(.caption)
-              .foregroundStyle(.secondary)
-            Spacer()
-            Button("Open Login Items") { loginItem.openSystemSettings() }
-          }
-        }
-        if let error = loginItem.lastError {
-          Text(error)
-            .font(.caption)
-            .foregroundStyle(.red)
-        }
-      }
-
-      Section("About") {
-        LabeledContent("Version") {
-          Text(build.versionText)
-            .monospacedDigit()
-            .textSelection(.enabled)
-        }
-        LabeledContent("Build", value: build.build)
-        if let builtAt = build.builtAt {
-          LabeledContent("Built", value: builtAt.formatted(date: .abbreviated, time: .shortened))
-        }
-        if build.isDirty {
-          Text("Built with uncommitted changes, so the commit alone does not identify it.")
-            .font(.caption)
-            .foregroundStyle(.orange)
-        }
-      }
     }
     .formStyle(.grouped)
-    .frame(width: 400)
-    .onAppear { loginItem.refresh() }
   }
 
   private var hoursBinding: Binding<ShiftHours> {
@@ -100,9 +69,5 @@ struct SettingsView: View {
           model.updateSchedule(updated)
         }
       })
-  }
-
-  private var loginBinding: Binding<Bool> {
-    Binding(get: { loginItem.isEnabled }, set: { loginItem.setEnabled($0) })
   }
 }

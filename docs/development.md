@@ -59,14 +59,15 @@ reserved for the first user-ready release.
 
 Every app build runs `scripts/stamp_build_info.sh`, which writes the short commit (`.dirty` when
 tracked or untracked files differ from it) and the UTC build time into the built Info.plist. The
-panel footer and Settings → About show the result as SemVer build metadata, for example
+panel footer and the settings window's About pane show the result as SemVer build metadata, for example
 `0.2.0+abc1234`; an orange `.dirty` suffix means the commit alone does not identify the build.
 Builds without Git metadata show only the version. To check a copy on disk, run
 `defaults read /path/to/Dayleft.app/Contents/Info DayleftCommit`.
 
 ## Layout
 
-`App/` is the native UI and its models (timer refresh, settings persistence, login item).
+`App/` is the native UI and its models (timer refresh, settings persistence, login item);
+`App/Settings/` owns the AppKit-hosted settings window and its panes.
 `Sources/DayleftCore` is the dependency-free timing model; `Sources/DayleftPresentation` turns
 day states into menu bar, panel, and VoiceOver text, owns the stored settings format, and reads the build identity.
 `Tests/DayleftCoreTests` owns deterministic behavior checks. The Xcode app links that same

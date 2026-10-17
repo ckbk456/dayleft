@@ -10,12 +10,14 @@ its own, without accounts, tracking services, or a connection to another applica
 
 The selected direction is the compact dark countdown with a large remaining-time label and a
 horizontal workday-progress bar. See [the approved visual](docs/design/approved-menu-bar.png).
-The image is visual direction; its decorative slogan is not a product requirement. Work hours are
-edited with a 24-hour dial in Settings and in "Adjust today…"; the panel keeps the linear bar.
+The image is visual direction; its decorative slogan is not a product requirement.
 
-The menu bar shows a small hourglass and hours/minutes. Clicking opens a panel with remaining
-time, finish time, a clearly identified elapsed-workday bar, and work-hour controls. Keep the
-primary countdown prominent when later connected information is enabled.
+The menu bar shows a small hourglass and hours/minutes. Clicking it opens a compact, read-only
+panel: remaining time, finish time, a clearly identified elapsed-workday bar, today's hours, and
+the usual hours. Nothing is edited inside the panel. Its rows, a Settings button, and ⌘, open a
+separate settings window (sidebar panes: Today, Work Hours, General, About), where work hours are
+edited on a 24-hour dial. The app has a Dock icon only while that window is open. Keep the primary
+countdown prominent when later connected information is enabled.
 
 ## Standalone MVP: intended behavior
 

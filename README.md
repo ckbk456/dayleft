@@ -3,8 +3,9 @@
 A small native macOS menu bar app that reminds you how much of your chosen workday is left.
 
 **Status: MVP candidate, pending human verification.** The menu bar shows a live countdown for
-your workday. Settings edits recurring hours on a 24-hour dial (overnight shifts included),
-workdays, and opt-in launch at login; "Adjust today…" changes or skips only today's shift.
+your workday; clicking it shows a compact read-only panel. A separate settings window edits
+recurring hours on a 24-hour dial (overnight shifts included), workdays, and opt-in launch at
+login; its Today pane changes or skips only today's shift.
 The [manual timer guide](testing/MANUAL%20TO-DO/timer.md) must pass before calling it user-ready.
 
 ![Approved menu bar direction](docs/design/approved-menu-bar.png)
@@ -26,7 +27,7 @@ make open
 ```
 
 In Xcode, select the **Dayleft** scheme and **My Mac**, then Run. The app appears in the menu
-bar without a Dock icon. Choose **Quit** in its panel to stop it. For a local development run,
+bar without a Dock icon. Use the power button in its panel to quit. For a local development run,
 select **Sign to Run Locally** if Xcode requests signing configuration; no development team
 or provider credentials are stored in this project.
 
