@@ -36,7 +36,7 @@ final class TimerModel {
 
   // MARK: Today-only changes
 
-  /// The shift "Adjust today…" edits: the running shift, otherwise the one starting today.
+  /// The day the Today pane edits: the running shift's, otherwise today.
   var adjustableDay: LocalDay {
     let calendar = Calendar.autoupdatingCurrent
     if case .working(let window, _) = state {
@@ -49,6 +49,11 @@ final class TimerModel {
   var adjustableChange: DayOverride.Change? {
     guard let override = settings.override, override.day == adjustableDay else { return nil }
     return override.change
+  }
+
+  /// Whether the regular schedule has work on the adjustable day, ignoring today-only changes.
+  var adjustableDayIsWorkday: Bool {
+    settings.schedule.workdays.contains(adjustableDay.weekday(in: .autoupdatingCurrent))
   }
 
   var nowTimeOfDay: TimeOfDay {

@@ -2,7 +2,7 @@ import DayleftCore
 import DayleftPresentation
 import SwiftUI
 
-/// Recurring work hours and workdays. Changes apply immediately.
+/// The regular schedule: recurring hours and workdays. Changes apply immediately.
 struct SchedulePane: View {
   let model: TimerModel
 
@@ -20,10 +20,10 @@ struct SchedulePane: View {
           .frame(maxWidth: .infinity)
           .padding(.vertical, 8)
       } header: {
-        Text("Usual hours")
+        Text("Regular hours")
       } footer: {
         Text(
-          "Drag either handle, or type exact times. A cutoff before the start ends the next day."
+          "Every workday uses these hours unless you change today's work in Today. A cutoff before the start ends the next day."
         )
         .font(.caption)
         .foregroundStyle(.secondary)

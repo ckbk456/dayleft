@@ -26,8 +26,9 @@ struct PanelView: View {
           open(.today)
         }
         PanelRow(
-          title: "Usual hours",
-          value: "\(usualHoursText), \(formatter.workdaysSummary(model.settings.schedule.workdays))"
+          title: "Regular schedule",
+          value:
+            "\(regularHoursText), \(formatter.workdaysSummary(model.settings.schedule.workdays))"
         ) {
           open(.schedule)
         }
@@ -109,12 +110,12 @@ struct PanelView: View {
     .buttonStyle(PanelIconButtonStyle())
   }
 
-  private var usualHoursText: String {
+  private var regularHoursText: String {
     let hours = model.settings.schedule.hours
     return "\(formatter.time(hours.start)) – \(formatter.time(hours.cutoff))"
   }
 
-  /// Today's shift: a today-only change, a non-workday, or the usual hours.
+  /// Today's work: a today-only change, a non-workday, or the regular hours.
   private var todayText: String {
     switch model.adjustableChange {
     case .hours(let custom):
@@ -123,7 +124,7 @@ struct PanelView: View {
       return "Day off (changed)"
     case nil:
       if case .dayOff = model.state { return "Not a workday" }
-      return usualHoursText
+      return regularHoursText
     }
   }
 

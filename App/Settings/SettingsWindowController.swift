@@ -14,7 +14,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
   var title: String {
     switch self {
     case .today: "Today"
-    case .schedule: "Work Hours"
+    case .schedule: "Regular Schedule"
     case .general: "General"
     case .about: "About"
     }

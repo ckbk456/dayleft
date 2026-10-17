@@ -7,7 +7,7 @@ and the live menu bar panel. Local/CI validation results are evidence, not compl
 
 ## Standalone MVP — implemented, verification next
 
-The 24-hour dial, the settings window (Today, Work Hours, General, About), and opt-in login launch
+The 24-hour dial, the settings window (Today, Regular Schedule, General, About), and opt-in login launch
 are implemented.
 
 1. Complete the [timer manual guide](testing/MANUAL%20TO-DO/timer.md), accessibility checks,

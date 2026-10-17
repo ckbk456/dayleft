@@ -25,10 +25,12 @@ Use System Settings → General → Date & Time to change the clock, time zone, 
 
 ## Settings window — pending
 
-- [ ] Panel rows open the Today and Work Hours panes; the gear button and ⌘, open the window.
+- [ ] Panel rows open the Today and Regular Schedule panes; the gear button and ⌘, open the window.
       The panel closes, and the window comes to the front over other apps.
 - [ ] A Dock icon and app menu appear only while the window is open; closing it (button or ⌘W)
       returns Dayleft to the menu bar only. The window never opens by itself at launch.
+- [ ] Naming is consistent: "Regular schedule" for recurring hours/workdays, "Today's work" for
+      today-only changes. On a non-workday, Today says so instead of quoting regular hours.
 - [ ] Today: Revert and Apply stay disabled until the draft differs; reopening the window drops
       an unapplied draft; the dial is not cramped and its labels do not overlap.
 
